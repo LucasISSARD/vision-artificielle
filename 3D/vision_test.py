@@ -96,11 +96,15 @@ mat_K2 = param_to_matrice(K2,3,3)
 mat_R1 = param_to_matrice(R1,3,3)
 mat_R2 = param_to_matrice(R2,3,3)
 
+
+## Appariment
+
+cv2.triangulatePoints()
 ## Rectification
 
 #cv2.stereoRectify()
 
-
+## Triangulation
 
 
 
