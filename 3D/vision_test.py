@@ -8,6 +8,10 @@ import sys
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
+from math import *
+
+import Local_config
+import Fonctions_sup
 
 ## Fonction
 
@@ -42,8 +46,8 @@ def param_to_matrice(param,taille_w,taille_h):
 
 ## Chargement des images
 # Charger les photos
-img_filename_1 = 'C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/data_scene_flow/testing/image_2/000000_10.png'  # Load the photo
-img_filename_2 = 'C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/data_scene_flow/testing/image_3/000000_10.png'  # Load the photo
+img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/000000_10.png'  # Load the photo
+img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/000000_10.png'  # Load the photo
 
 # Photo 1
 fig=plt.figure(figsize=(6,6))
@@ -62,7 +66,7 @@ plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
 
 ## Lecture de fichier de calibrage
 
-calib_filename= 'C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/data_scene_flow_calib/testing/calib_cam_to_cam/000000.txt'
+calib_filename= Local_config.chemin+'/data_scene_flow_calib/testing/calib_cam_to_cam/000000.txt'
 
 with open(calib_filename, "r") as filin:
     for i in range(18):
@@ -99,12 +103,14 @@ mat_R2 = param_to_matrice(R2,3,3)
 
 ## Appariment
 
-cv2.triangulatePoints()
+#cv2.triangulatePoints()
 ## Rectification
 
 #cv2.stereoRectify()
 
 ## Triangulation
 
+##intercorelation
 
 
+rep=Fonctions_sup.correlation_2D(img_i_1,img_i_2)
