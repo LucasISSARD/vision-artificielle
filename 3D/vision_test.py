@@ -129,13 +129,13 @@ plt.Line2D(ABC,'r' )
 
 # Recherche du point correspondant sur l'image droite
 w = 11        # taille du masque de corrélation (2*w+1)*(2*w+1)
-seuil = 1e-29
+seuil = 0.3
 sc_max=seuil
 for j in range(w,np.size(img_i_2,0)-w):
     i = round(-(A*j+C)/B)    # round = arrondie
     if i > w + 1 and i < np.size(img_i_2,1)-w:
         sc = Fonctions_sup.correlation_2D(img_i_1[v-w:v+w,u-w:u+w,0],img_i_2[i-w:i+w,j-w:j+w,0])
-        #print(sc)
+        print(sc)
         if sc > sc_max :
             sc_max = sc
             i_max = i
