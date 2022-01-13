@@ -6,6 +6,7 @@ Created on Thu Jan  6 08:25:15 2022
 
 Implémente l'algorithme de Viola & Jones pour la détection de voitures
 """
+
 # Librairies
 import os
 import time
@@ -14,12 +15,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Chemin de la vidéo ( /!\ sur Windows, remplacer les \ par des / sans oublier le / final)
-video_path = "D:/Documents/GitHub/vision-artificielle/dataset/Road/"
+#video_path = "D:/Documents/GitHub/vision-artificielle/dataset/2015/"
+#video_path = "D:/Documents/GitHub/vision-artificielle/dataset/Road/"
+video_path = "D:/Documents/GitHub/vision-artificielle/dataset/Road2/"
 
 # Import du classifieur pré-entraîné pour la détection de voitures
 car_cascade = cv2.CascadeClassifier('haarcascade_car.xml') 
 
-counter = 70        # Première image
+counter = 200                           # Première image à traiter
 files = next(os.walk(video_path))[2]    # Compte le nombre de fichiers dans le video_path
 while counter < len(files):             # Pour toutes les images du video_path
     # Acquisition des images dans la vidéo
@@ -32,11 +35,12 @@ while counter < len(files):             # Pour toutes les images du video_path
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Détection des voitures dans notre image
-    cars = car_cascade.detectMultiScale(img_gray, scaleFactor = 1.08, minNeighbors = 4)
+    cars = car_cascade.detectMultiScale(img_gray, scaleFactor = 1.04, minNeighbors = 8, minSize=(30, 30), maxSize=(200, 200))
 
     # Dessin des bounding boxes
     for (x,y,w,h) in cars:
-        cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+        cv2.drawMarker(img,(x+round(w/2),y+round(w/2)),color=(0,0,255), markerType=cv2.MARKER_CROSS, thickness=2)
+        #cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
 
     # Affichage de l'image
     cv2.imshow("video", img)
@@ -44,5 +48,5 @@ while counter < len(files):             # Pour toutes les images du video_path
     cv2.waitKey(1)
     time.sleep(0.1)
 
-
+# Fermeture des fenêtres
 cv2.destroyAllWindows()
