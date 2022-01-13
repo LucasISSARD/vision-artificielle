@@ -50,15 +50,17 @@ img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/000000_10
 
 # Photo 1
 plt.figure(1)
-img_i_1 = cv2.imread(img_filename_1)
+img_i_1 = cv2.imread(img_filename_1,0)
 plt.axis('off')
 plt.imshow(cv2.cvtColor(img_i_1, cv2.COLOR_BGR2RGB))
+plt.title("Image 2 de référence")
 
 # Photo 2
 plt.figure(2)
-img_i_2 = cv2.imread(img_filename_2)
+img_i_2 = cv2.imread(img_filename_2,0)
 plt.axis('off')
 plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
+plt.title("Image 3 correspondante")
 
 
 #plt.show()
@@ -114,6 +116,7 @@ E = t_x * R32                                                 # Calcul de la mat
 F = np.matrix.transpose((np.linalg.inv(mat_K1))).dot(E).dot(np.linalg.inv(mat_K2))   # Calcul de la matrice Fondamentale
 
 
+img_i_1
 
 # Calcul de la droite épipolaire
 u = int(input( " Enter value between 0 and 1242 >> "))
@@ -123,18 +126,18 @@ plt.plot (u,v,'ro')
 ABC = np.array([float(u),float(v),1.0]).dot(F)     # Droite épipolaire                                           #
 
 A = ABC[0];B=ABC[1];C=ABC[2]
-x= np.linspace(0,1200)
-y= np.linspace(0,300)
-plt.Line2D(ABC,'r' )
+x= np.linspace(0,12000)
+y= np.linspace(0,3000)
+plt.plot(A*x+B*y+C,'ro' )
 
 # Recherche du point correspondant sur l'image droite
-w = 11        # taille du masque de corrélation (2*w+1)*(2*w+1)
-seuil = 0.3
+w = 5        # taille du masque de corrélation (2*w+1)*(2*w+1)
+seuil = 0.5
 sc_max=seuil
 for j in range(w,np.size(img_i_2,0)-w):
     i = round(-(A*j+C)/B)    # round = arrondie
     if i > w + 1 and i < np.size(img_i_2,1)-w:
-        sc = Fonctions_sup.correlation_2D(img_i_1[v-w:v+w,u-w:u+w,0],img_i_2[i-w:i+w,j-w:j+w,0])
+        sc = Fonctions_sup.correlation_2D(img_i_1[v-w:v+w,u-w:u+w],img_i_2[i-w:i+w,j-w:j+w])
         print(sc)
         if sc > sc_max :
             sc_max = sc
@@ -153,4 +156,3 @@ if sc_max > seuil:
 ## Triangulation
 
 plt.show()
-
