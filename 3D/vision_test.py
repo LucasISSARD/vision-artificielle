@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-import Locals_config
+import Local_config
 import Fonctions_sup
 
 ## Fonction
@@ -45,8 +45,8 @@ def param_to_matrice(param,taille_w,taille_h):
 
 ## Chargement des images
 # Charger les photos
-img_filename_1 = 'C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/data_scene_flow/testing/image_2/000000_10.png'  # Load the photo
-img_filename_2 = 'C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/data_scene_flow/testing/image_3/000000_10.png'  # Load the photo
+img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/000000_10.png'  # Load the photo
+img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/000000_10.png'  # Load the photo
 
 # Photo 1
 fig=plt.figure(figsize=(6,6))
@@ -65,7 +65,7 @@ plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
 
 ## Lecture de fichier de calibrage
 
-calib_filename= 'C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/data_scene_flow_calib/testing/calib_cam_to_cam/000000.txt'
+calib_filename= Local_config.chemin+'/data_scene_flow_calib/testing/calib_cam_to_cam/000000.txt'
 
 with open(calib_filename, "r") as filin:
     for i in range(18):
@@ -118,23 +118,23 @@ F = np.linalg.inv(mat_K1).dot(E).dot(np.linalg.inv(mat_K2))   # Calcul de la mat
 # Calcul de la droite épipolaire
 u = input( " Enter U >> ")
 v = input( " Enter V >> ")
-plot (u,v,'')
+#plot (u,v,'')
 ABC = np.array([float(u),float(v),1.0]).dot(F)     # Droite épipolaire                                           #
 
 A = ABC[0];B=ABC[1];C=ABC[2];
 plt.plot(ABC,'r')
 
 # Recherche du point correspondant sur l'image droite
-sc_max=0.5
-         for j = 1 +w: size(I_d,2)-w:
-             i = round(-(A*j+C)/B);   % round = arrondie
-             if i > w +1 and i <size(I_d,1)-w:
-                sc = correlation_2D(I_g(v-w:v+w,u-w:u+w),I_d(i-w:i+w,j-w:j+w));
-                if sc > sc_max :
-                    sc_max = sc;i_max = i;j_max =j;
-         if sc_max > seuil :
-            hold on
-            plot(j_max,i_max,'go')
+# sc_max=0.5
+#          for j = 1 +w: size(I_d,2)-w:
+#              i = round(-(A*j+C)/B);   % round = arrondie
+#              if i > w +1 and i <size(I_d,1)-w:
+#                 sc = correlation_2D(I_g(v-w:v+w,u-w:u+w),I_d(i-w:i+w,j-w:j+w));
+#                 if sc > sc_max :
+#                     sc_max = sc;i_max = i;j_max =j;
+#          if sc_max > seuil :
+#             hold on
+#             plot(j_max,i_max,'go')
 
 
 ## Rectification

@@ -11,4 +11,4 @@ from matplotlib import pyplot as plt
 
 ## Local config
 
-chemin='E:/imagerie_numerique'
+chemin='C:/Users/quent/Desktop/Cours 5A/VISION_PROJET'

@@ -131,3 +131,4 @@ dmypy.json
 # Custom
 dataset/
 *.png
+3D/Local_config.py
