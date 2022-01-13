@@ -9,6 +9,9 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
+import Locals_config
+import Fonctions_sup
+
 ## Fonction
 
 def param_to_vect(param,taille):
@@ -52,7 +55,7 @@ plt.axis('off')
 plt.imshow(cv2.cvtColor(img_i_1, cv2.COLOR_BGR2RGB))
 
 # Photo 2
-fig=plt.figure(figsize=(6,6))
+fig2=plt.figure(figsize=(6,6))
 img_i_2 = cv2.imread(img_filename_2)
 plt.axis('off')
 plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
@@ -97,14 +100,48 @@ mat_R1 = param_to_matrice(R1,3,3)
 mat_R2 = param_to_matrice(R2,3,3)
 
 
-## Appariment
+## Correpondance entre 2 points sur 2 images différentes
+# Prenons le cas où l'on détecte sur image 2 et que l'on fait la correspondance sur l'image 3
+# Calcul des matrices essentielles et fondamentales
+R32 = mat_R2.dot(np.matrix.transpose(mat_R1))                              # Calcul de matrice de Rotations
+t32 = vect_T2 - mat_R2.dot(np.matrix.transpose(mat_R1)).dot(vect_T1)             # Calcul de matrice de translation
+t_x = np.array([[0,-t32[2],t32[1]],
+                [t32[2],0,-t32[0]],
+                [-t32[1],t32[0],0]])
 
-cv2.triangulatePoints()
+
+E = t_x * R32                                                 # Calcul de la matrice Essentielle
+F = np.linalg.inv(mat_K1).dot(E).dot(np.linalg.inv(mat_K2))   # Calcul de la matrice Fondamentale
+
+
+
+# Calcul de la droite épipolaire
+u = input( " Enter U >> ")
+v = input( " Enter V >> ")
+plot (u,v,'')
+ABC = np.array([float(u),float(v),1.0]).dot(F)     # Droite épipolaire                                           #
+
+A = ABC[0];B=ABC[1];C=ABC[2];
+plt.plot(ABC,'r')
+
+# Recherche du point correspondant sur l'image droite
+sc_max=0.5
+         for j = 1 +w: size(I_d,2)-w:
+             i = round(-(A*j+C)/B);   % round = arrondie
+             if i > w +1 and i <size(I_d,1)-w:
+                sc = correlation_2D(I_g(v-w:v+w,u-w:u+w),I_d(i-w:i+w,j-w:j+w));
+                if sc > sc_max :
+                    sc_max = sc;i_max = i;j_max =j;
+         if sc_max > seuil :
+            hold on
+            plot(j_max,i_max,'go')
+
+
 ## Rectification
 
 #cv2.stereoRectify()
 
 ## Triangulation
 
-
+plt.show()
 
