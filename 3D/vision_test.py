@@ -49,13 +49,13 @@ img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/000000_10
 img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/000000_10.png'  # Load the photo
 
 # Photo 1
-fig=plt.figure(figsize=(6,6))
+plt.figure(1)
 img_i_1 = cv2.imread(img_filename_1)
 plt.axis('off')
 plt.imshow(cv2.cvtColor(img_i_1, cv2.COLOR_BGR2RGB))
 
 # Photo 2
-fig2=plt.figure(figsize=(6,6))
+plt.figure(2)
 img_i_2 = cv2.imread(img_filename_2)
 plt.axis('off')
 plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
@@ -111,30 +111,39 @@ t_x = np.array([[0,-t32[2],t32[1]],
 
 
 E = t_x * R32                                                 # Calcul de la matrice Essentielle
-F = np.linalg.inv(mat_K1).dot(E).dot(np.linalg.inv(mat_K2))   # Calcul de la matrice Fondamentale
+F = np.matrix.transpose((np.linalg.inv(mat_K1))).dot(E).dot(np.linalg.inv(mat_K2))   # Calcul de la matrice Fondamentale
 
 
 
 # Calcul de la droite épipolaire
-u = input( " Enter U >> ")
-v = input( " Enter V >> ")
-#plot (u,v,'')
+u = int(input( " Enter value between 0 and 1242 >> "))
+v = int(input( " Enter value between 0 and 375 >> "))
+plt.figure(1)
+plt.plot (u,v,'ro')
 ABC = np.array([float(u),float(v),1.0]).dot(F)     # Droite épipolaire                                           #
 
-A = ABC[0];B=ABC[1];C=ABC[2];
-plt.plot(ABC,'r')
+A = ABC[0];B=ABC[1];C=ABC[2]
+x= np.linspace(0,1200)
+y= np.linspace(0,300)
+plt.Line2D(ABC,'r' )
 
 # Recherche du point correspondant sur l'image droite
-# sc_max=0.5
-#          for j = 1 +w: size(I_d,2)-w:
-#              i = round(-(A*j+C)/B);   % round = arrondie
-#              if i > w +1 and i <size(I_d,1)-w:
-#                 sc = correlation_2D(I_g(v-w:v+w,u-w:u+w),I_d(i-w:i+w,j-w:j+w));
-#                 if sc > sc_max :
-#                     sc_max = sc;i_max = i;j_max =j;
-#          if sc_max > seuil :
-#             hold on
-#             plot(j_max,i_max,'go')
+w = 11        # taille du masque de corrélation (2*w+1)*(2*w+1)
+seuil = 1e-29
+sc_max=seuil
+for j in range(w,np.size(img_i_2,0)-w):
+    i = round(-(A*j+C)/B)    # round = arrondie
+    if i > w + 1 and i < np.size(img_i_2,1)-w:
+        sc = Fonctions_sup.correlation_2D(img_i_1[v-w:v+w,u-w:u+w,0],img_i_2[i-w:i+w,j-w:j+w,0])
+        #print(sc)
+        if sc > sc_max :
+            sc_max = sc
+            i_max = i
+            j_max =j
+            print("coucou")
+if sc_max > seuil:
+    plt.figure(2)
+    plt.plot(j_max,i_max,'go')
 
 
 ## Rectification
