@@ -95,19 +95,19 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
     return(distance)
 
 ## test correlation 2D
-a=[[1,2,3],[4,5,6]]
-b=a
-
-m=np.mean(a)
-n=np.mean(b)
-A=np.sum((a-m)**2)
-B=np.sum((b-n)**2)
-rep = np.sum(np.sum((b-n)*(a-m)))/sqrt(A*B)
-
-rep_2=correlation_2D(a,b)
-
-print(rep)
-print(rep_2)
+# a=[[1,2,3],[4,5,6]]
+# b=a
+#
+# m=np.mean(a)
+# n=np.mean(b)
+# A=np.sum((a-m)**2)
+# B=np.sum((b-n)**2)
+# rep = np.sum(np.sum((b-n)*(a-m)))/sqrt(A*B)
+#
+# rep_2=correlation_2D(a,b)
+#
+# print(rep)
+# print(rep_2)
 
 ## test triangulation
 # T0= [2.573699e-16, -1.059758e-16, 1.614870e-16]
