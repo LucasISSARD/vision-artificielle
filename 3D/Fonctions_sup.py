@@ -12,8 +12,10 @@ def correlation_2D(I1,I2):
 
 
 
-    I1_int=I1.astype(float)
-    I2_int=I2.astype(float)
+    I1_int=I1#.astype(float)
+    I2_int=I2#.astype(float)
+
+
 
     m1=np.mean(I1_int)
     A=np.sum((I1_int-m1)**2)
@@ -32,16 +34,22 @@ def correlation_2D(I1,I2):
 
 def calc_d_cam_to_cam(T2,T3):
     d_X=T2[0]+T3[0]
+    d_Y=T2[1]+T3[1]
     d_Z=T2[2]+T3[2]
 
-    d_cam=sqrt(d_X**2+d_Z**2)
+    d_cam=sqrt(sqrt(d_X**2+d_Z**2)**2+d_Y**2)
 
     return(d_cam)
 
 
-def triangulation (dist_pix_im_g,dist_pix_im_d,L_ecrant, angle_d_ouverture,AB):
+def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 
     pi=np.pi
+
+
+    AB=calc_d_cam_to_cam(T2,T3)
+    angle_d_ouverture=np.pi/2
+    L_ecrant=1242
 
     L_ecrant_moitier=L_ecrant/2
 
@@ -72,36 +80,49 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,L_ecrant, angle_d_ouverture,AB):
     # print(AB)
     # print(BC)
 
-    distance=np.sin(beta)*BC
+    d_X=np.cos(beta)*BC-T3[0]
+    # d_Y=-T3[1]
+    d_Z=np.sin(beta)*BC-T3[2]-d_ecrant*4.65*10**(-6)
+
+    print(d_X)
+    # print(d_Y)
+    print(d_Z)
+
+
+
+    distance=sqrt(d_X**2+d_Z**2)
 
     return(distance)
 
 ## test correlation 2D
-# a=[[1,2,3],[4,5,6]]
-# b=a
-#
-# m=np.mean(a)
-# n=np.mean(b)
-# A=np.sum((a-m)**2)
-# B=np.sum((b-n)**2)
-# rep = np.sum(np.sum((b-n)*(a-m)))/sqrt(A*B)
-#
-# rep_2=correlation_2D(a,b)
+a=[[1,2,3],[4,5,6]]
+b=a
+
+m=np.mean(a)
+n=np.mean(b)
+A=np.sum((a-m)**2)
+B=np.sum((b-n)**2)
+rep = np.sum(np.sum((b-n)*(a-m)))/sqrt(A*B)
+
+rep_2=correlation_2D(a,b)
+
+print(rep)
+print(rep_2)
 
 ## test triangulation
-
+# T0= [2.573699e-16, -1.059758e-16, 1.614870e-16]
 # T2= [5.956621e-02, 2.900141e-04, 2.577209e-03]
 # T3= [-4.731050e-01, 5.551470e-03,-5.250882e-03]
 # AB= calc_d_cam_to_cam(T2,T3)
 #
 # angle_d_ouverture=np.pi/2
 #
-# dist_pix_im_g=270
-# dist_pix_im_d=211
-# L_ecrant=1242
+# dist_pix_im_g=1134
+# dist_pix_im_d=1100
 #
 #
-# rep=triangulation (dist_pix_im_g,dist_pix_im_d,L_ecrant, angle_d_ouverture,AB)
+#
+# rep=triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3)
 #
 # print(rep)
 
