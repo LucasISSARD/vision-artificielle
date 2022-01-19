@@ -35,12 +35,15 @@ while counter < len(files):             # Pour toutes les images du video_path
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Détection des voitures dans notre image
-    cars = car_cascade.detectMultiScale(img_gray, scaleFactor = 1.04, minNeighbors = 8, minSize=(30, 30), maxSize=(200, 200))
+    cars = car_cascade.detectMultiScale(img_gray, scaleFactor = 1.04, minNeighbors = 8, minSize=(20, 20), maxSize=(150, 150))
 
     # Dessin des bounding boxes
+    i = 0
     for (x,y,w,h) in cars:
         cv2.drawMarker(img,(x+round(w/2),y+round(w/2)),color=(0,0,255), markerType=cv2.MARKER_CROSS, thickness=2)
+        cv2.putText(img, (str)(i), (x+round(w/2)+8,y+round(w/2)+8), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color=(0,0,255), thickness=2)
         #cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+        i = i + 1
 
     # Affichage de l'image
     cv2.imshow("video", img)
