@@ -84,9 +84,9 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
     # d_Y=-T3[1]
     d_Z=np.sin(beta)*BC-T3[2]-d_ecrant*4.65*10**(-6)
 
-    print(d_X)
+    #print(d_X)
     # print(d_Y)
-    print(d_Z)
+    #print(d_Z)
 
 
 

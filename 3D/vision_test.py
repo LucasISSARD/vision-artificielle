@@ -120,8 +120,8 @@ F = (np.transpose(np.linalg.inv(mat_K1)).dot(E)).dot(np.linalg.inv(mat_K2))   # 
 # Calcul de la droite épipolaire
 # u = int(input( " Enter value between 0 and 1242 >> "))
 # v = int(input( " Enter value between 0 and 375 >> "))
-u = 252#908
-v = 216#183
+u = 462
+v = 188
 
 plt.figure(1)
 plt.plot (u,v,'mo')
@@ -136,7 +136,7 @@ plt.plot(x, -(A*x+C)/B, 'r-', lw=1)
 
 # Recherche du point correspondant sur l'image droite
 w = 50   # taille du masque de corrélation (2*w+1)*(2*w+1)
-seuil = 0.3
+seuil = 0.5
 sc_max=seuil
 for j in range(w,np.size(img_i_2,1)-w):
     i = round(-(A*j+C)/B)    # round = arrondie
@@ -147,7 +147,7 @@ for j in range(w,np.size(img_i_2,1)-w):
             sc_max = sc
             i_max = i
             j_max =j
-            print(sc)
+            #print(sc)
 if sc_max > seuil:
     plt.figure(2)
     plt.plot(j_max,i_max,'go')
@@ -157,6 +157,8 @@ if sc_max > seuil:
 #cv2.stereoRectify()
 
 ## Triangulation
+Dist_cam_veh = Fonctions_sup.triangulation(u,j_max,vect_T1,vect_T2)
+print(Dist_cam_veh)
 
 
 plt.show()
