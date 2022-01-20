@@ -9,6 +9,7 @@ Implémente l'algorithme CSRT pour le suivi des voitures
 """
 
 # Librairies
+from ctypes import sizeof
 import os
 import time
 import cv2
@@ -59,6 +60,8 @@ car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Classi
 first_frame = 200                                                       # Première frame à traiter
 last_frame = len(next(os.walk(video_path))[2])                          # Dernière frame à traiter (fin de la vidéo)
 
+first = True
+
 # Programme principal
 frame = first_frame
 while frame < last_frame:
@@ -73,6 +76,24 @@ while frame < last_frame:
     # Si une voiture est détecté sur plusieurs frames de suite, on appelle un algorithme de tracking qui va la suivre le plus longtemps possible
     # On utilise l'algorithme CSRT (corrélation) car c'est celui qui est le plus précis (et le plus lent mais c'est pas grave)
     
+    n = 0
+    ofs = 20    # Réduit la taille de la zone
+    if first == True:
+        tracker = cv2.TrackerCSRT_create()      # Crée le traceur
+        bbox = (cars[n][0]+ofs, cars[n][1]+ofs, cars[n][2]-2*ofs, cars[n][3]-2*ofs)
+        tracker.init(img, bbox)                 # Initialise le traceur
+        first = False
+    else :
+        ok, bbox = tracker.update(img)   # Actualise le traceur
+        if ok:  # Succès
+            p1 = (int(bbox[0]), int(bbox[1]))
+            p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+            x = int(p1[0] + (p2[0] - p1[0])/2)
+            y = int(p2[1] + (p1[1] - p2[1])/2)
+            cv2.drawMarker(img,(x,y),color=(255,0,0), markerType=cv2.MARKER_CROSS, thickness=2)
+            cv2.rectangle(img, p1, p2, (255,0,0), 2, 1) 
+        else :  # Echec
+            print("Perte du suivi")
 
 
 
