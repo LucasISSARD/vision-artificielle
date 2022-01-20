@@ -104,40 +104,40 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 # print(rep_2)
 
 ## test triangulation
-T0= [2.573699e-16, -1.059758e-16, 1.614870e-16]
-T2= [5.956621e-02, 2.900141e-04, 2.577209e-03]
-T3= [-4.731050e-01, 5.551470e-03,-5.250882e-03]
-AB= calc_d_cam_to_cam(T2,T3)
-
-angle_d_ouverture=np.pi/2
-
-rep=[]
-
-# for dist_pix_im_g in range(621,1242):
-#     for dist_pix_im_d in range(621):
-#         rep.append(triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3))
+# T0= [2.573699e-16, -1.059758e-16, 1.614870e-16]
+# T2= [5.956621e-02, 2.900141e-04, 2.577209e-03]
+# T3= [-4.731050e-01, 5.551470e-03,-5.250882e-03]
+# AB= calc_d_cam_to_cam(T2,T3)
 #
-# dist_pix_im_d= np.linspace(0,621**2,621**2)
+# angle_d_ouverture=np.pi/2
+#
+# rep=[]
+#
+# # for dist_pix_im_g in range(621,1242):
+# #     for dist_pix_im_d in range(621):
+# #         rep.append(triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3))
+# #
+# # dist_pix_im_d= np.linspace(0,621**2,621**2)
+# # plt.figure(1)
+# # plt.plot(dist_pix_im_d,rep,'r-', lw=1)
+# # plt.show()
+#
+# dist_pix_im_g=621
+# for dist_pix_im_d in range(621):
+#     rep.append(triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3))
+#
+# dist_pix_im_d= np.linspace(0,621,621)
 # plt.figure(1)
 # plt.plot(dist_pix_im_d,rep,'r-', lw=1)
 # plt.show()
-
-dist_pix_im_g=621
-for dist_pix_im_d in range(621):
-    rep.append(triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3))
-
-dist_pix_im_d= np.linspace(0,621,621)
-plt.figure(1)
-plt.plot(dist_pix_im_d,rep,'r-', lw=1)
-plt.show()
 
 ## test cherche pts
 
 # w=10
 # seuil=0.5
 #
-# u= 376
-# v= 75#177
+# u= 363
+# v= 197#177
 #
 #
 #
