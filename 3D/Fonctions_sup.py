@@ -12,8 +12,8 @@ def correlation_2D(I1,I2):
 
 
 
-    I1_int=I1#.astype(float)
-    I2_int=I2#.astype(float)
+    I1_int=I1.astype(float)
+    I2_int=I2.astype(float)
 
 
 
