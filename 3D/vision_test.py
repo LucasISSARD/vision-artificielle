@@ -121,14 +121,15 @@ img_i_1
 # Calcul de la droite épipolaire
 u = int(input( " Enter value between 0 and 1242 >> "))
 v = int(input( " Enter value between 0 and 375 >> "))
-plt.figure(1)
-plt.plot (u,v,'ro')
+plt.figure(2)
+plt.plot (u,v,'mo')
 ABC = np.array([float(u),float(v),1.0]).dot(F)     # Droite épipolaire                                           #
 
 A = ABC[0];B=ABC[1];C=ABC[2]
-x= np.linspace(0,12000)
-y= np.linspace(0,3000)
-plt.plot(A*x+B*y+C,'ro' )
+x= np.linspace(0,1242)
+
+plt.figure(2)
+plt.plot(x, -(A*x+C)/B, 'r-', lw=1)
 
 # Recherche du point correspondant sur l'image droite
 w = 5        # taille du masque de corrélation (2*w+1)*(2*w+1)
