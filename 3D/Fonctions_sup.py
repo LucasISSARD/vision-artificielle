@@ -6,6 +6,82 @@ from matplotlib import pyplot as plt
 from math import *
 import scipy as sc
 
+import Local_config
+
+
+## Fonction
+
+def param_to_vect(param,taille):
+    list=np.zeros(taille)
+    c=0
+    for j in range(len(param)):
+        if param[j]==" ":
+            if param[j+1]=="-":
+                list[c]=(float(param[j+1:j+14]))
+            else:
+                list[c]=(float(param[j+1:j+13]))
+            c=c+1
+    return list
+
+def param_to_matrice(param,taille_w,taille_h):
+    list=np.zeros((taille_w,taille_h))
+    w=0
+    h=0
+    for j in range(len(param)):
+        if param[j]==" ":
+            if h == 3 :
+                h=0
+                w=w+1
+            if param[j+1]=="-":
+                list[w,h]=(float(param[j+1:j+14]))
+            else:
+                list[w,h]=(float(param[j+1:j+13]))
+            h=h+1
+    return list
+
+
+
+def calib(filename):
+    calib_filename= Local_config.chemin+'/data_scene_flow_calib/testing/calib_cam_to_cam/'+filename
+    with open(calib_filename, "r") as filin:
+        for i in range(18):
+            filin.readline()
+        S1 = filin.readline() # Taille image
+        K1 = filin.readline() # Param calibrage
+        D1 = filin.readline() # Distorsion
+        R1 = filin.readline() # Matrice Rotation
+        T1 = filin.readline() # Vect translation
+        S_Rect1 = filin.readline() # Taille rectifier
+        Rect_1 = filin.readline() # Matrice de rectification
+        P_Rect_1 = filin.readline() # Matrice de Projection
+        S2 = filin.readline() # Taille image
+        K2 = filin.readline() # Param calibrage
+        D2 = filin.readline() # Distorsion
+        R2 = filin.readline() # Matrice Rotation
+        T2 = filin.readline() # Vect translation
+        S_Rect2 = filin.readline() # Taille rectifier
+        Rect_2 = filin.readline() # Matrice de rectification
+        P_Rect_2 = filin.readline() # Matrice de Projection
+
+    vect_T2=param_to_vect(T2,3)
+    vect_T1=param_to_vect(T1,3)
+    vect_D1=param_to_vect(D1,5)
+    vect_D2=param_to_vect(D2,5)
+    mat_Rect_2 = param_to_matrice(Rect_2,3,3)
+    mat_Rect_1 = param_to_matrice(Rect_1,3,3)
+    mat_K1 = param_to_matrice(K1,3,3)
+    mat_K2 = param_to_matrice(K2,3,3)
+    mat_R1 = param_to_matrice(R1,3,3)
+    mat_R2 = param_to_matrice(R2,3,3)
+
+    return([vect_T1,vect_T2,vect_D1,vect_D2,mat_Rect_1,mat_Rect_2,mat_K1,mat_K2,mat_R1,mat_R2])
+
+def image (img):
+    # Charger les photos
+    img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/'+img  # Load the photo
+    img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/'+img  # Load the photo
+    return([img_filename_1,img_filename_2])
+
 def correlation_2D(I1,I2):
 
     I1_int=I1.astype(float)
@@ -84,13 +160,12 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
     # print(degrees(beta))
     # print(degrees(gama))
 
-
-    d_X=-np.cos(beta)*BC+T3[0]
-
     # print(np.cos(beta)*BC)
     # print(d_X)
 
     # d_Y=-T3[1]
+
+    d_X=-np.cos(beta)*BC+T3[0]
     d_Z=np.sin(beta)*BC-T3[2]-d_ecrant*4.65*10**(-6)
 
     distance=sqrt(d_X**2+d_Z**2)
@@ -166,50 +241,14 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 # # plt.show()
 
 ## test cherche pts
-#
+
 # w=10
 # seuil=0.5
 #
 #
+# [vect_T1,vect_T2,vect_D1,vect_D2,mat_Rect_1,mat_Rect_2,mat_K1,mat_K2,mat_R1,mat_R2 ]=calib('000020.txt')
 #
-#
-# import Local_config
-#
-# ## Fonction
-#
-# def param_to_vect(param,taille):
-#     list=np.zeros(taille)
-#     c=0
-#     for j in range(len(param)):
-#         if param[j]==" ":
-#             if param[j+1]=="-":
-#                 list[c]=(float(param[j+1:j+14]))
-#             else:
-#                 list[c]=(float(param[j+1:j+13]))
-#             c=c+1
-#     return list
-#
-# def param_to_matrice(param,taille_w,taille_h):
-#     list=np.zeros((taille_w,taille_h))
-#     w=0
-#     h=0
-#     for j in range(len(param)):
-#         if param[j]==" ":
-#             if h == 3 :
-#                 h=0
-#                 w=w+1
-#             if param[j+1]=="-":
-#                 list[w,h]=(float(param[j+1:j+14]))
-#             else:
-#                 list[w,h]=(float(param[j+1:j+13]))
-#             h=h+1
-#     return list
-#
-#
-# ## Chargement des images
-# # Charger les photos
-# img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/000020_10.png'  # Load the photo
-# img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/000020_10.png'  # Load the photo
+# [img_filename_1,img_filename_2]=image ('000020_10.png')
 #
 # # Photo 1
 # plt.figure(1)
@@ -225,86 +264,81 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 # plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
 # plt.title("Image 3 correspondante")
 #
+# size=2
 #
-# #plt.show()
-#
-# ## Lecture de fichier de calibrage
-#
-# calib_filename= Local_config.chemin+'/data_scene_flow_calib/testing/calib_cam_to_cam/000020.txt'
-#
-# with open(calib_filename, "r") as filin:
-#     for i in range(18):
-#         filin.readline()
-#     S1 = filin.readline() # Taille image
-#     K1 = filin.readline() # Param calibrage
-#     D1 = filin.readline() # Distorsion
-#     R1 = filin.readline() # Matrice Rotation
-#     T1 = filin.readline() # Vect translation
-#     S_Rect1 = filin.readline() # Taille rectifier
-#     Rect_1 = filin.readline() # Matrice de rectification
-#     P_Rect_1 = filin.readline() # Matrice de Projection
-#     S2 = filin.readline() # Taille image
-#     K2 = filin.readline() # Param calibrage
-#     D2 = filin.readline() # Distorsion
-#     R2 = filin.readline() # Matrice Rotation
-#     T2 = filin.readline() # Vect translation
-#     S_Rect2 = filin.readline() # Taille rectifier
-#     Rect_2 = filin.readline() # Matrice de rectification
-#     P_Rect_2 = filin.readline() # Matrice de Projection
-#
-# ## Conversion en array (numpy)
-# vect_T2=param_to_vect(T2,3)
-# vect_T1=param_to_vect(T1,3)
-# vect_D1=param_to_vect(D1,5)
-# vect_D2=param_to_vect(D2,5)
-# mat_Rect_2 = param_to_matrice(Rect_2,3,3)
-# mat_Rect_1 = param_to_matrice(Rect_1,3,3)
-# mat_K1 = param_to_matrice(K1,3,3)
-# mat_K2 = param_to_matrice(K2,3,3)
-# mat_R1 = param_to_matrice(R1,3,3)
-# mat_R2 = param_to_matrice(R2,3,3)
-#
-#
-#
-#
-#
-# u= [524,333,1152,49,149,363,462,504,602,661,592]
-# v= [171,125,99,135,205,196,187,183,186,186,148]
+# u= [182,250,363,462,504,602,645,333,661,1014]#592, 524,  49, 1152, ,906
+# v= [224,211,196,187,183,186,183,125,186,106]#148, 171,  135, 99, ,106
 #
 # d_X=[]
 # d_Z=[]
+# dist=[]
 # for i in range (np.size(u)):
 #     i_max=cherche_pts(img_i_1,img_i_2,u[i],v[i],w,seuil)
 #     rep=triangulation (u[i],i_max,vect_T1,vect_T2)
-#     d_X.append(rep[1])
-#     d_Z.append(rep[2])
+#     # dist.append(rep[0])
+#     # d_X.append(rep[1])
+#     # d_Z.append(rep[2])
+#
 #     plt.figure(1)
 #     plt.plot (u[i],v[i],'bo')
+#
 #     plt.figure(2)
 #     plt.plot (i_max,v[i],'bo')
 #
+#     plt.figure(3)
+#     plt.plot(rep[1],rep[2],'bo')
+#     # x = np.array([rep[1]-size, rep[1]+size, rep[1]+size, rep[1]-size, rep[1]-size])
+#     # y = np.array([rep[2]-size, rep[2]-size, rep[2]+size, rep[2]+size, rep[2]-size])
+#     # plt.plot(x, y,'b')
+#     # plt.xlim(-1, 2)
+#     # plt.ylim(-1, 2)
 #
 #
+# Taille=140
 #
 # plt.figure(3)
-#
-# plt.plot(d_X,d_Z,'bo')
 # plt.plot(0,0,'mo')
-# plt.axis([-max(d_Z)/2, max(d_Z)/2, 0, max(d_Z)])
+# plt.grid()
+# plt.axis([-Taille/2, Taille/2, -2, Taille])
+# plt.title("Positions mesurées")
+# plt.ylabel('Z (Profondeur) (m)')
+# plt.xlabel('X (Largeur) (m)')
+#
+# # X=-8.193427163744156
+# # Z=28.53998265869714
+# # size=2
+# #
+# #
+# # x = np.array([X-size, X+size, X+size, X-size, X-size])
+# # y = np.array([Z-size, Z-size, Z+size, Z+size, Z-size])
+# # plt.plot(x, y,'b')
+# # plt.xlim(-1, 2)
+# # plt.ylim(-1, 2)
 #
 #
-# dist=[]
-# for i in range (621):
-#     rep=triangulation (621,i,vect_T1,vect_T2)
-#     dist.append(rep[0])
 #
-# zero = np.zeros((621))
 #
-# plt.figure(4)
 #
-# plt.plot(zero,dist,'bo')
-# plt.plot(0,0,'mo')
+# # zero = np.zeros((np.size(u)))
+# # plt.figure(4)
+# # plt.plot(zero,dist,'bo')
+# # plt.plot(0,0,'mo')
 #
+#
+#
+#
+# # dist=[]
+# # for i in range (621):
+# #     rep=triangulation (621,i,vect_T1,vect_T2)
+# #     dist.append(rep[0])
+# #
+# # zero = np.zeros((621))
+# #
+# # plt.figure(5)
+# #
+# # plt.plot(zero,dist,'bo')
+# # plt.plot(0,0,'mo')
+# # plt.grid()
 # plt.show()
 
 # ## autre
