@@ -1,5 +1,3 @@
-
-
 #!/usr/bin/env python
 # coding: utf-8
 
@@ -46,8 +44,8 @@ def param_to_matrice(param,taille_w,taille_h):
 
 ## Chargement des images
 # Charger les photos
-img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/000020_10.png'  # Load the photo
-img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/000020_10.png'  # Load the photo
+img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/000116_10.png'  # Load the photo
+img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/000116_10.png'  # Load the photo
 
 # Photo 1
 plt.figure(1)
@@ -68,7 +66,7 @@ plt.title("Image 3 correspondante")
 
 ## Lecture de fichier de calibrage
 
-calib_filename= Local_config.chemin+'/data_scene_flow_calib/testing/calib_cam_to_cam/000020.txt'
+calib_filename= Local_config.chemin+'/data_scene_flow_calib/testing/calib_cam_to_cam/000116.txt'
 
 with open(calib_filename, "r") as filin:
     for i in range(18):
@@ -120,8 +118,8 @@ F = (np.transpose(np.linalg.inv(mat_K1)).dot(E)).dot(np.linalg.inv(mat_K2))   # 
 # Calcul de la droite épipolaire
 # u = int(input( " Enter value between 0 and 1242 >> "))
 # v = int(input( " Enter value between 0 and 375 >> "))
-u = 462
-v = 188
+u = 423
+v = 221
 
 plt.figure(1)
 plt.plot (u,v,'mo')
@@ -135,8 +133,8 @@ plt.plot(x, -(A*x+C)/B, 'r-', lw=1)
 
 
 # Recherche du point correspondant sur l'image droite
-w = 50   # taille du masque de corrélation (2*w+1)*(2*w+1)
-seuil = 0.5
+w = 75   # taille du masque de corrélation (2*w+1)*(2*w+1)
+seuil = 0.2
 sc_max=seuil
 for j in range(w,np.size(img_i_2,1)-w):
     i = round(-(A*j+C)/B)    # round = arrondie
@@ -159,7 +157,5 @@ if sc_max > seuil:
 ## Triangulation
 Dist_cam_veh = Fonctions_sup.triangulation(u,j_max,vect_T1,vect_T2)
 print(Dist_cam_veh)
-
-
 plt.show()
 
