@@ -15,4 +15,6 @@ Application Python permettant la détection et la localisation dans l'espace de 
 	- [ ] Mise en oeuvre de l'algorithme de Viola et Jones
 	- [ ] ...
 - [ ] Localisation 3D des objets
-	- [ ] ...
+	- [ ] Mise en correspondance des points
+	- [ ] Triangulation
+	- [ ] Affichage en 2D 
