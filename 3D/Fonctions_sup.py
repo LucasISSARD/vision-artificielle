@@ -76,11 +76,52 @@ def calib(filename):
 
     return([vect_T1,vect_T2,vect_D1,vect_D2,mat_Rect_1,mat_Rect_2,mat_K1,mat_K2,mat_R1,mat_R2])
 
+
 def image (img):
     # Charger les photos
     img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/'+img  # Load the photo
     img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/'+img  # Load the photo
     return([img_filename_1,img_filename_2])
+
+
+def Trace_Image(img_filename_1,img_filename_2):
+    # Photo 1
+    plt.figure(1)
+    img_i_1 = cv2.imread(img_filename_1,0)
+    plt.axis('off')
+    plt.imshow(cv2.cvtColor(img_i_1, cv2.COLOR_BGR2RGB))
+    plt.title("Image 2 de référence")
+
+    # Photo 2
+    plt.figure(2)
+    img_i_2 = cv2.imread(img_filename_2,0)
+    plt.axis('off')
+    plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
+    plt.title("Image 3 correspondante")
+
+    return ([img_i_1,img_i_2])
+
+def Calcul_matrice_E_F(mat_R1,mat_R2,vect_T1,vect_T2,mat_K1,mat_K2):
+
+    R32 = mat_R2.dot(np.transpose(mat_R1))                              # Calcul de matrice de Rotations
+    t32 = vect_T2 - mat_R2.dot((np.transpose(mat_R1)).dot(vect_T1))             # Calcul de matrice de translation
+    t_x = np.array([[0,-t32[2],t32[1]],
+                    [t32[2],0,-t32[0]],
+                    [-t32[1],t32[0],0]])
+    E = t_x.dot(R32)                                                                     # Calcul de la matrice Essentielle
+    F = (np.transpose(np.linalg.inv(mat_K1)).dot(E)).dot(np.linalg.inv(mat_K2))   # Calcul de la matrice Fondamentale
+    return ([E,F])
+
+def Calcul_droite_epi(u,v,F):
+
+    plt.figure(1)
+    plt.plot (u,v,'mo')
+    ABC = np.array([u,v,1]).dot(F)     # Droite épipolaire                                           #
+    A = ABC[0];B=ABC[1];C=ABC[2]
+    x= np.linspace(0,1242,1242)
+    plt.figure(2)
+    plt.plot(x, -(A*x+C)/B, 'r-', lw=1)
+    return([A,B,C])
 
 def correlation_2D(I1,I2):
 
@@ -101,12 +142,33 @@ def correlation_2D(I1,I2):
 
     return (rep)
 
+
+def cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v):
+    # Recherche du point correspondant sur l'image droite
+    sc_max=seuil
+    for j in range(w,np.size(img_i_2,1)-w):
+        i = round(-(A*j+C)/B)    # round = arrondie
+
+        if i > w + 1 and i < np.size(img_i_2,0)-w:
+            sc = correlation_2D(img_i_1[v-w:v+w,u-w:u+w],img_i_2[i-w:i+w,j-w:j+w])
+            if sc > sc_max :
+                sc_max = sc
+                i_max = i
+                j_max =j
+                #print(sc)
+    if sc_max > seuil:
+        plt.figure(2)
+        plt.plot(j_max,i_max,'go')
+    return ([j_max,i_max])
+
 def cherche_pts(img_1,img_2,u,v,w,seuil):
+    # sans droite epipolaire
+    # Simplification caméra sur la meme ligne
 
     sc_max=seuil
 
-    for i in range (w,np.size(img_i_2,1)-w):
-        sc = correlation_2D(img_i_1[v-w:v+w,u-w:u+w],img_i_2[v-w:v+w,i-w:i+w])
+    for i in range (w,np.size(img_2,1)-w):
+        sc = correlation_2D(img_1[v-w:v+w,u-w:u+w],img_2[v-w:v+w,i-w:i+w])
 
         if sc > sc_max :
             sc_max = sc
