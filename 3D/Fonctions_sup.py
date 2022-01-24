@@ -312,19 +312,7 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 #
 # [img_filename_1,img_filename_2]=image ('000020_10.png')
 #
-# # Photo 1
-# plt.figure(1)
-# img_i_1 = cv2.imread(img_filename_1,0)
-# plt.axis('off')
-# plt.imshow(cv2.cvtColor(img_i_1, cv2.COLOR_BGR2RGB))
-# plt.title("Image 2 de référence")
-#
-# # Photo 2
-# plt.figure(2)
-# img_i_2 = cv2.imread(img_filename_2,0)
-# plt.axis('off')
-# plt.imshow(cv2.cvtColor(img_i_2, cv2.COLOR_BGR2RGB))
-# plt.title("Image 3 correspondante")
+# img_i_1,img_i_2 = Trace_Image(img_filename_1,img_filename_2)
 #
 # size=2
 #
@@ -376,19 +364,19 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 # # plt.plot(x, y,'b')
 # # plt.xlim(-1, 2)
 # # plt.ylim(-1, 2)
-#
-#
-#
-#
-#
+# #
+# #
+# #
+# #
+# #
 # # zero = np.zeros((np.size(u)))
 # # plt.figure(4)
 # # plt.plot(zero,dist,'bo')
 # # plt.plot(0,0,'mo')
-#
-#
-#
-#
+# #
+# #
+# #
+# #
 # # dist=[]
 # # for i in range (621):
 # #     rep=triangulation (621,i,vect_T1,vect_T2)
@@ -401,7 +389,9 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 # # plt.plot(zero,dist,'bo')
 # # plt.plot(0,0,'mo')
 # # plt.grid()
+
+
 # plt.show()
 
-# ## autre
-# #verification peut etre pas besion de R_rect
+## autre
+#verification peut etre pas besion de R_rect

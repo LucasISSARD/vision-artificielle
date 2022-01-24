@@ -30,6 +30,9 @@ j_max,i_max = Fonctions_sup.cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i
 
 ## Correpondance entre 2 points sur 2 images différentes sans la droite épipolaire
 #
+# w=10
+# seuil=0.5
+
 # u= [182,250,363,462,504,602,645,333,661,1014]
 # v= [224,211,196,187,183,186,183,125,186,106]
 #
@@ -45,10 +48,21 @@ j_max,i_max = Fonctions_sup.cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i
 #
 #     plt.figure(2)
 #     plt.plot (i_max,v[i],'bo')
-#
+
+# ## Affichage dans un plant 2D
+
 #     plt.figure(3)
 #     plt.plot(rep[1],rep[2],'bo')
-# plt.show()
+
+# Taille=140
+# plt.figure(3)
+# plt.plot(0,0,'mo')
+# plt.grid()
+# plt.axis([-Taille/2, Taille/2, -2, Taille])
+# plt.title("Positions mesurées")
+# plt.ylabel('Z (Profondeur) (m)')
+# plt.xlabel('X (Largeur) (m)')
+
 ## Triangulation
 Dist_cam_vehicule = Fonctions_sup.triangulation(u,j_max,vect_T1,vect_T2)
 print(Dist_cam_vehicule)
