@@ -234,6 +234,31 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 
     return([distance,d_X,d_Z])
 
+def correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2):
+    d_X=[]
+    d_Z=[]
+    dist=[]
+    for i in range (np.size(u)):
+        i_max=cherche_pts(img_i_1,img_i_2,u[i],v[i],w,seuil)
+        dist=triangulation(u[i],i_max,vect_T1,vect_T2)
+
+        plt.figure(1)
+        plt.plot (u[i],v[i],'bo')
+
+        plt.figure(2)
+        plt.plot (i_max,v[i],'bo')
+        # Affichage dans un plant 2D
+        plt.figure(3)
+        plt.plot(dist[1],dist[2],'bo')
+    Taille=140
+    plt.figure(3)
+    plt.plot(0,0,'mo')
+    plt.grid()
+    plt.axis([-Taille/2, Taille/2, -2, Taille])
+    plt.title("Positions mesurées")
+    plt.ylabel('Z (Profondeur) (m)')
+    plt.xlabel('X (Largeur) (m)')
+
 ## test correlation 2D
 # a=[[1,2,3],[4,5,6]]
 # b=a
