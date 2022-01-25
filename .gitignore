@@ -130,4 +130,5 @@ dmypy.json
 
 # Custom
 dataset/
+private/
 *.png
