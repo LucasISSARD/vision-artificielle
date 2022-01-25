@@ -19,7 +19,7 @@ img_i_1,img_i_2 = Fonctions_sup.Trace_Image(img_filename_1,img_filename_2) # Aff
 ## Correpondance entre 2 points sur 2 images différentes avec la droite épipolaire
 # Prenons le cas où l'on détecte sur image 2 et que l'on fait la correspondance sur l'image 3
 # Calcul des matrices essentielles et fondamentales
-E, F = Fonctions_sup.Calcul_matrice_E_F(mat_R1,mat_R2,vect_T1,vect_T2,mat_K1,mat_K2)
+E, F = Fonctions_sup.Calcul_matrice_E_F(mat_Rect_1,mat_Rect_2,vect_T1,vect_T2,mat_K1,mat_K2)
 u,v = 363,197 # Test à une position
 A,B,C = Fonctions_sup.Calcul_droite_epi(u,v,F) # calcul et affiche la droite épipolaire
 
@@ -28,8 +28,8 @@ seuil = 0.2 # seuil de corrélation
 j_max,i_max = Fonctions_sup.cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v)
 
 ## Triangulation
-#Dist_cam_vehicule = Fonctions_sup.triangulation(u,i_max,vect_T1,vect_T2)
-#print(Dist_cam_vehicule)
+Dist_cam_vehicule = Fonctions_sup.triangulation(u,j_max,vect_T1,vect_T2)
+print(Dist_cam_vehicule)
 
 ## Correpondance entre 2 points sur 2 images différentes sans la droite épipolaire
 
