@@ -5,19 +5,22 @@ Created on Thu Jan  6 08:25:15 2022
 @author: Lucas ISSARD
 
 Implémente l'algorithme de Viola & Jones pour la détection des voitures
-Implémente l'algorithme CSRT pour le suivi des voitures
+Implémente l'algorithme CSRT ou MedianFlow pour le suivi des voitures
 """
 ## TODO List :
-# - Améliorer la gestion des doublons dans la détection des voitures
-# - Gérer l'ajout automatique de nouveaux traceurs
 # - Gérer la suppression automatique des traceurs sortis du champ
 
 # Librairies
 import os
+from telnetlib import NOP
 import time
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+
+# Paramètres
+show_detected = False   # Afficher sur l'image toutes les entités détectées (rouge)
+show_tracked = True     # Afficher sur l'image les voitures en train d'être suivies (bleu)
 
 # Fonctions
 def acqFrame (video_path, frame):
@@ -31,7 +34,7 @@ def acqFrame (video_path, frame):
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     return img
 
-def detectCars (img): # TODO : améliorer la gestion des doublons en fusionnant les zones plutôt qu'en supprimant la plus petite
+def detectCars (img):
     # Détection des voitures dans l'image
     cars = car_cascade.detectMultiScale(img, scaleFactor = 1.04, minNeighbors = 8, minSize=(20, 20), maxSize=(180, 180))
 
@@ -47,7 +50,7 @@ def detectCars (img): # TODO : améliorer la gestion des doublons en fusionnant 
                 else:
                     cars[I] = (0,0,0,0)
             I = I + 1
-        if cars[i][0] != 0 and cars[i][1] != 0:
+        if cars[i][0] != 0 and cars[i][1] != 0 and show_detected == True:
             cv2.drawMarker(img,(x+round(w/2),y+round(w/2)),color=(0,0,255), markerType=cv2.MARKER_CROSS, thickness=2)
             cv2.putText(img, (str)(i), (x+round(w/2)+8,y+round(w/2)+8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color=(0,0,255), thickness=1)
             cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),1)
@@ -57,8 +60,7 @@ def detectCars (img): # TODO : améliorer la gestion des doublons en fusionnant 
     return cars
 
 # Paramètres
-video_path = "D:/Documents/GitHub/vision-artificielle/dataset/Road2/"   # Chemin de la vidéo ( /!\ sur Windows, remplacer les \ par des / sans oublier le / final )
-#video_path = "D:/Documents/GitHub/vision-artificielle/dataset/2011_09_26_2/2011_09_26_drive_0005_sync/image_02/data/"
+video_path = "D:/Documents/GitHub/vision-artificielle/dataset/road/"    # Chemin de la vidéo ( /!\ sur Windows, remplacer les \ par des / sans oublier le / final )
 car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Classifieur pré-entraîné
 first_frame = 200                                                       # Première frame à traiter
 last_frame = len(next(os.walk(video_path))[2])                          # Dernière frame à traiter (fin de la vidéo)
@@ -66,6 +68,8 @@ last_frame = len(next(os.walk(video_path))[2])                          # Derni�
 first = True
 
 trackers = cv2.legacy.MultiTracker_create() # Crée le traceur multiple
+
+liste = [] #  Liste contenant les voitures détectées, format : [ on/off , x , y , w  , h ]
 
 # Programme principal
 frame = first_frame
@@ -77,33 +81,58 @@ while frame < last_frame:
     # Détection des voitures
     cars = detectCars(img)
 
-
     # Suivi des voitures
-    # TODO : Gérer la suppression des trackers sortis du champ
-    #        Gérer l'ajout automatique de nouveaux trackers
     if first == True:
-        n = 0
-        ofs = 20    # Réduit la taille de la zone
-        box = (cars[n][0]+ofs, cars[n][1]+ofs, cars[n][2]-2*ofs, cars[n][3]-2*ofs)   # Trace la box
-        trackers.add(cv2.legacy.TrackerCSRT_create(), img, box)                      # Ajoute un tracker
-        n=3
-        ofs = 10
-        box = (cars[n][0]+ofs, cars[n][1]+ofs, cars[n][2]-2*ofs, cars[n][3]-2*ofs)   # Trace la box
-        trackers.add(cv2.legacy.TrackerCSRT_create(), img, box)                      # Ajoute un tracker
         first = False
     else :
+
+        # Détection des NOUVELLES voitures
+        for i in range(len(cars)-1):    # Pour toutes les "voitures" fraîchement détectées
+            ignore = False
+
+            # Si la voiture en cours d'étude est un doublon (valeurs mises à 0), on l'ignore
+            if cars[i][2] == 0:
+                ignore = True
+                break
+
+            # Si la voiture en cours d'étude est déjà dans la liste, on l'ignore
+            th1 = 30
+            for k in range(len(liste)):
+                #if cars[i][0] >= liste[k][0]-int(liste[k][2]/2) and cars[i][0] <= liste[k][0]+int(liste[k][2]/2) and cars[i][1] >= liste[k][1]-int(liste[k][3]/2) and cars[i][1] <= liste[k][1]+int(liste[k][3]/2):
+                if cars[i][0] >= liste[k][0]-th1 and cars[i][0] <= liste[k][0]+th1 and cars[i][1] >= liste[k][1]-th1 and cars[i][1] <= liste[k][1]+th1:
+                    ignore = True
+            
+            if ignore == False:
+                for j in range(len(cars_history)-1):
+                    # Si c'est la deuxième fois de suite qu'on détecte cette voiture
+                    th = 20     # seuil
+                    if cars[i][0] >= cars_history[j][0]-th and cars[i][0] <= cars_history[j][0]+th and cars[i][1] >= cars_history[j][1]-th and cars[i][1] <= cars_history[j][1]+th:
+                        # Alors c'est bien une nouvelle voiture détectée, on l'ajoute à la liste et on lui colle un traceur
+                        liste.append([cars[i][0], cars[i][1], cars[i][2], cars[i][3], 1])           # On l'ajoute à la liste des voitures vraiment détectées
+                        ofs = int(0.2*cars[i][2])                                                   # On réduit la taille de la box de 20% pour aider la détection
+                        box = (cars[i][0]+ofs, cars[i][1]+ofs, cars[i][2]-2*ofs, cars[i][3]-2*ofs)  # On trace sa box
+                        #trackers.add(cv2.legacy.TrackerCSRT_create(), img, box)                     # On ajoute son tracker CSRT (très fiable mais taille fixe)
+                        trackers.add(cv2.legacy.TrackerMedianFlow_create(), img, box)               # On ajoute son tracker MedianFlow (moins fiable mais taille adaptable)
+                        print("LISTE = ", liste)
+                        break
+
         success, boxes = trackers.update(img) # Met à jour les traceurs
         if success:
-            for bbox in boxes:  # Affiche toutes les boxes
-                p1 = (int(bbox[0]), int(bbox[1]))
-                p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-                x = int(p1[0] + (p2[0] - p1[0])/2)
-                y = int(p2[1] + (p1[1] - p2[1])/2)
-                cv2.drawMarker(img,(x,y),color=(255,0,0), markerType=cv2.MARKER_CROSS, thickness=2)
-                cv2.rectangle(img, p1, p2, (255, 0, 0), 2, 1)
+            if show_tracked == True:
+                for bbox in boxes:  # Affiche toutes les boxes
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    x = int(p1[0] + (p2[0] - p1[0])/2)
+                    y = int(p2[1] + (p1[1] - p2[1])/2)
+                    cv2.drawMarker(img,(x,y),color=(255,0,0), markerType=cv2.MARKER_CROSS, thickness=2)
+                    cv2.rectangle(img, p1, p2, (255, 0, 0), 2, 1)
         else:
+            # TODO : Améliorer la gestion de la perte d'objets pour éviter de vider complètement la liste à chaque fois qu'on perd qu'un seul traceur
             print("Echec du suivi")
-
+            liste.clear()                               # On vide la liste
+            trackers = cv2.legacy.MultiTracker_create() # On réinitialise le traceur
+            
+    cars_history = cars     # On stock les voitures actuelles dans l'historique
 
     # Affichage de l'image
     cv2.imshow("video", img)

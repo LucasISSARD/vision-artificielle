@@ -13,5 +13,5 @@ Application Python permettant la détection et la localisation dans l'espace de 
 ### 2. Application
 - [x] Détection des voitures et/ou pétions dans une image
 	- [x] Mise en oeuvre de l'algorithme de Viola et Jones
-	- [ ] Suivi des objets avec l'algorithme CSRT
+	- [ ] Suivi des objets avec l'algorithme CSRT ou MedianFlow
 - [x] Localisation 3D des objets
