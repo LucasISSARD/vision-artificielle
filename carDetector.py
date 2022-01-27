@@ -66,6 +66,12 @@ def detectCars (img):
     
     return cars
 
+def topleft2center (liste):
+    carsC = []
+    for (x,y,w,h) in liste:
+        carsC.append([x + round(w/2), y + round(h/2)])
+    return carsC
+
 # Variables
 first = True
 trackers = []   # Liste des traceurs
@@ -106,7 +112,7 @@ while frame < last_frame:
                     th = 20     # seuil
                     if cars[i][0] >= cars_history[j][0]-th and cars[i][0] <= cars_history[j][0]+th and cars[i][1] >= cars_history[j][1]-th and cars[i][1] <= cars_history[j][1]+th:
                         # Alors c'est bien une nouvelle voiture détectée, on l'ajoute à la liste et on lui colle un traceur
-                        liste.append([cars[i][0], cars[i][1], cars[i][2], cars[i][3], 1])           # On l'ajoute à la liste des voitures vraiment détectées
+                        liste.append([cars[i][0], cars[i][1], cars[i][2], cars[i][3]])           # On l'ajoute à la liste des voitures vraiment détectées
                         ofs = int(0.2*cars[i][2])                                                   # On réduit la taille de la box de 20% pour aider la détection
                         box = (cars[i][0]+ofs, cars[i][1]+ofs, cars[i][2]-2*ofs, cars[i][3]-2*ofs)  # On trace sa box
                         trackers.append(cv2.legacy.TrackerMedianFlow_create())
@@ -140,9 +146,9 @@ while frame < last_frame:
         for j in list_to_remove:
             liste.remove(j)
 
-        
-            
     cars_history = cars     # On stock les voitures actuelles dans l'historique
+
+    out = topleft2center(liste) # Sortie [u, v]
 
     # Affichage de l'image
     cv2.imshow("video", img)
