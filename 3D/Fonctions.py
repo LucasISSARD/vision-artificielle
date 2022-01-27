@@ -12,7 +12,7 @@ import Local_config
 ## Fonction
 
 def param_to_vect(param,taille):
-    """ Fonction de convertion pour la lecture des fichiers transformation en vecteur"""
+#Fonction de convertion pour la lecture des fichiers transformation en vecteur
     list=np.zeros(taille)
     c=0
     for j in range(len(param)):
@@ -25,7 +25,7 @@ def param_to_vect(param,taille):
     return list
 
 def param_to_matrice(param,taille_w,taille_h):
-     """ Fonction de convertion pour la lecture des fichiers transformation en matrice"""
+# Fonction de convertion pour la lecture des fichiers transformation en matrice
     list=np.zeros((taille_w,taille_h))
     w=0
     h=0
