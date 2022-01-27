@@ -9,7 +9,6 @@ Implémente l'algorithme MedianFlow pour le suivi des voitures
 """
 ## TODO List :
 # - Ajuster les paramètres pour un fonctionnement optimal
-# - Mettre au propre
 
 # Librairies
 import os
@@ -19,14 +18,12 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Paramètres globaux
+# Paramètres
 show_detected = False   # Afficher sur l'image toutes les entités détectées (rouge)
 show_tracked = True     # Afficher sur l'image les voitures en train d'être suivies (vert)
 show_rectangle = False  # Afficher sur l'image les rectangles entourant les voitures suivies (vert)
-
-# Paramètres du détecteur
 video_path = "D:/Documents/GitHub/vision-artificielle/dataset/road/"    # Chemin de la vidéo ( /!\ sur Windows, remplacer les \ par des / sans oublier le / final )
-car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Classifieur pré-entraîné
+car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Choix du classifieur pré-entraîné
 first_frame = 0                                                         # Première frame à traiter
 last_frame = len(next(os.walk(video_path))[2])                          # Dernière frame à traiter (fin de la vidéo)
 
@@ -146,20 +143,11 @@ time.sleep(0.01)
 
 # Programme principal
 while frame < last_frame:
-    # Acquisition de l'image
-    img = acqFrame(video_path, frame)
-
-    # Détection des voitures
-    cars = detectCars(img)
-
-    # Suivi des voitures
-    liste = trackCars(cars, cars_history)
-
-    # Stockage des voitures actuelles dans l'historique
-    cars_history = cars     
-    
-    # Calcul de la sortie (liste des positions (x,y) des voitures)
-    out = topleft2center(liste)
+    img = acqFrame(video_path, frame)       # Acquisition de l'image
+    cars = detectCars(img)                  # Détection des voitures
+    liste = trackCars(cars, cars_history)   # Suivi des voitures
+    cars_history = cars                     # Stockage des voitures actuelles dans l'historique
+    out = topleft2center(liste)             # Calcul de la sortie (liste des positions (x,y) des voitures)
     
     # Affichage des résultats
     cv2.imshow("video", img)
