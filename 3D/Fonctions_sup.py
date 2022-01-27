@@ -12,6 +12,7 @@ import Local_config
 ## Fonction
 
 def param_to_vect(param,taille):
+    """ Fonction de convertion pour la lecture des fichiers transformation en vecteur"""
     list=np.zeros(taille)
     c=0
     for j in range(len(param)):
@@ -24,6 +25,7 @@ def param_to_vect(param,taille):
     return list
 
 def param_to_matrice(param,taille_w,taille_h):
+     """ Fonction de convertion pour la lecture des fichiers transformation en matrice"""
     list=np.zeros((taille_w,taille_h))
     w=0
     h=0
@@ -218,13 +220,6 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 
     BC=AB*np.sin(alpha)/np.sin(gama)
 
-    # print(degrees(alpha))
-    # print(degrees(beta))
-    # print(degrees(gama))
-
-    # print(np.cos(beta)*BC)
-    # print(d_X)
-
     # d_Y=-T3[1]
 
     d_X=-np.cos(beta)*BC+T3[0]
@@ -250,7 +245,7 @@ def correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2):
         # Affichage dans un plant 2D
         plt.figure(3)
         plt.plot(dist[1],dist[2],'bo')
-    Taille=140
+    Taille=100
     plt.figure(3)
     plt.plot(0,0,'mo')
     plt.grid()
