@@ -45,12 +45,12 @@ def detectCars (img):
     # Détection des voitures dans l'image
     cars = car_cascade.detectMultiScale(img, scaleFactor = 1.04, minNeighbors = 8, minSize=(20, 20), maxSize=(180, 180))
 
-    # Suppression des doublons et affichage des bounding boxes
+    print("Voitures détectées sur cette image :")
     i = 0
     for (x,y,w,h) in cars:
         I = 0
         for (X, Y, W, H) in cars:
-            # Si deux détections se chevauchent (si son centre est dans la box d'une autre), on supprime la plus petite
+            # Si deux détections se chevauchent sur UNE MEME IMAGE (si son centre est dans la box d'une autre), on supprime la plus petite
             if x+round(w/2) >= X and x+round(w/2) <= X+W and y+round(w/2) >= Y and y+round(w/2) <= Y+H and x != X and y != Y:
                 if cars[i][2] < cars[I][2]:
                     cars[i] = (0,0,0,0)
@@ -63,7 +63,7 @@ def detectCars (img):
             cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),1)
         print(i, cars[i])
         i = i + 1
-    print("-------------")
+    
     return cars
 
 # Variables
@@ -74,7 +74,6 @@ liste = []      # Liste contenant les voitures détectées, format : [ x , y , w
 # Programme principal
 frame = first_frame
 while frame < last_frame:
-
     # Acquisition de l'image
     img = acqFrame(video_path, frame)
 
@@ -87,7 +86,7 @@ while frame < last_frame:
     else :
 
         # Détection des NOUVELLES voitures
-        for i in range(len(cars)-1):    # Pour toutes les "voitures" fraîchement détectées
+        for i in range(len(cars)):    # Pour toutes les "voitures" fraîchement détectées
             ignore = False
 
             # Si la voiture en cours d'étude est un doublon (valeurs mises à 0), on l'ignore
@@ -102,7 +101,7 @@ while frame < last_frame:
                     ignore = True
             
             if ignore == False:
-                for j in range(len(cars_history)-1):
+                for j in range(len(cars_history)-1): # /!\ Faut pas le -1 normalement mais ça marche mieux avec donc bon...
                     # Si c'est la deuxième fois de suite qu'on détecte cette voiture
                     th = 20     # seuil
                     if cars[i][0] >= cars_history[j][0]-th and cars[i][0] <= cars_history[j][0]+th and cars[i][1] >= cars_history[j][1]-th and cars[i][1] <= cars_history[j][1]+th:
@@ -151,6 +150,7 @@ while frame < last_frame:
     frame = frame + 1
     cv2.waitKey(1)
     time.sleep(0.1)
+    print("-------------")
 
 # Fermeture des fenêtres
 cv2.destroyAllWindows()
