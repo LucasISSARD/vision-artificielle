@@ -8,7 +8,8 @@ Implémente l'algorithme de Viola & Jones pour la détection des voitures
 Implémente l'algorithme CSRT ou MedianFlow pour le suivi des voitures
 """
 ## TODO List :
-# - Gérer la suppression automatique des traceurs sortis du champ
+# - Gérer la création des traceurs
+# - Gérer la suppression des traceurs
 
 # Librairies
 import os
@@ -18,9 +19,15 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Paramètres
+# Paramètres globaux
 show_detected = False   # Afficher sur l'image toutes les entités détectées (rouge)
 show_tracked = True     # Afficher sur l'image les voitures en train d'être suivies (bleu)
+
+# Paramètres du détecteur
+video_path = "D:/Documents/GitHub/vision-artificielle/dataset/road/"    # Chemin de la vidéo ( /!\ sur Windows, remplacer les \ par des / sans oublier le / final )
+car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Classifieur pré-entraîné
+first_frame = 200                                                       # Première frame à traiter
+last_frame = len(next(os.walk(video_path))[2])                          # Dernière frame à traiter (fin de la vidéo)
 
 # Fonctions
 def acqFrame (video_path, frame):
@@ -59,17 +66,10 @@ def detectCars (img):
     print("-------------")
     return cars
 
-# Paramètres
-video_path = "D:/Documents/GitHub/vision-artificielle/dataset/road/"    # Chemin de la vidéo ( /!\ sur Windows, remplacer les \ par des / sans oublier le / final )
-car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Classifieur pré-entraîné
-first_frame = 200                                                       # Première frame à traiter
-last_frame = len(next(os.walk(video_path))[2])                          # Dernière frame à traiter (fin de la vidéo)
-
+# Variables
 first = True
-
-trackers = cv2.legacy.MultiTracker_create() # Crée le traceur multiple
-
-liste = [] #  Liste contenant les voitures détectées, format : [ on/off , x , y , w  , h ]
+trackers = []   # Liste des traceurs
+liste = []      # Liste contenant les voitures détectées, format : [ x , y , w  , h , on/off ]
 
 # Programme principal
 frame = first_frame
@@ -98,7 +98,6 @@ while frame < last_frame:
             # Si la voiture en cours d'étude est déjà dans la liste, on l'ignore
             th1 = 30
             for k in range(len(liste)):
-                #if cars[i][0] >= liste[k][0]-int(liste[k][2]/2) and cars[i][0] <= liste[k][0]+int(liste[k][2]/2) and cars[i][1] >= liste[k][1]-int(liste[k][3]/2) and cars[i][1] <= liste[k][1]+int(liste[k][3]/2):
                 if cars[i][0] >= liste[k][0]-th1 and cars[i][0] <= liste[k][0]+th1 and cars[i][1] >= liste[k][1]-th1 and cars[i][1] <= liste[k][1]+th1:
                     ignore = True
             
@@ -111,26 +110,38 @@ while frame < last_frame:
                         liste.append([cars[i][0], cars[i][1], cars[i][2], cars[i][3], 1])           # On l'ajoute à la liste des voitures vraiment détectées
                         ofs = int(0.2*cars[i][2])                                                   # On réduit la taille de la box de 20% pour aider la détection
                         box = (cars[i][0]+ofs, cars[i][1]+ofs, cars[i][2]-2*ofs, cars[i][3]-2*ofs)  # On trace sa box
-                        #trackers.add(cv2.legacy.TrackerCSRT_create(), img, box)                     # On ajoute son tracker CSRT (très fiable mais taille fixe)
-                        trackers.add(cv2.legacy.TrackerMedianFlow_create(), img, box)               # On ajoute son tracker MedianFlow (moins fiable mais taille adaptable)
-                        print("LISTE = ", liste)
+                        trackers.append(cv2.legacy.TrackerMedianFlow_create())
+                        trackers[-1].init(img, box)     # -1 = dernier tracker de la liste
                         break
 
-        success, boxes = trackers.update(img) # Met à jour les traceurs
-        if success:
-            if show_tracked == True:
-                for bbox in boxes:  # Affiche toutes les boxes
-                    p1 = (int(bbox[0]), int(bbox[1]))
-                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-                    x = int(p1[0] + (p2[0] - p1[0])/2)
-                    y = int(p2[1] + (p1[1] - p2[1])/2)
-                    cv2.drawMarker(img,(x,y),color=(255,0,0), markerType=cv2.MARKER_CROSS, thickness=2)
-                    cv2.rectangle(img, p1, p2, (255, 0, 0), 2, 1)
-        else:
-            # TODO : Améliorer la gestion de la perte d'objets pour éviter de vider complètement la liste à chaque fois qu'on perd qu'un seul traceur
-            print("Echec du suivi")
-            liste.clear()                               # On vide la liste
-            trackers = cv2.legacy.MultiTracker_create() # On réinitialise le traceur
+        print("TRACKERS = ", trackers)
+        print("LISTE = ", liste)
+
+        tracker_to_remove = []
+        list_to_remove = []
+        for i in range(len(trackers)):
+            success, box = trackers[i].update(img) # Met à jour les traceurs
+            if success:
+                if show_tracked == True:
+                        p1 = (int(box[0]), int(box[1]))
+                        p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
+                        x = int(p1[0] + (p2[0] - p1[0])/2)
+                        y = int(p2[1] + (p1[1] - p2[1])/2)
+                        cv2.drawMarker(img,(x,y),color=(255,0,0), markerType=cv2.MARKER_CROSS, thickness=2)
+                        cv2.rectangle(img, p1, p2, (255, 0, 0), 2, 1)
+            else:
+                # TODO : Améliorer la gestion de la perte d'objets pour éviter de vider complètement la liste à chaque fois qu'on perd qu'un seul traceur
+                print("Echec du suivi tacker n°", i)
+                tracker_to_remove.append(trackers[i])   # Ajoute le traceur actuel dans la liste des traceurs à supprimer
+                list_to_remove.append(liste[i])         # Ajoute l'élément de la liste concerné dans la liste des éléments de la liste à supprimer (wow)
+
+        # Et on supprime !
+        for j in tracker_to_remove:
+            trackers.remove(j)
+        for j in list_to_remove:
+            liste.remove(j)
+
+        
             
     cars_history = cars     # On stock les voitures actuelles dans l'historique
 
