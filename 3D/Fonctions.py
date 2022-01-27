@@ -254,6 +254,14 @@ def correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2):
     plt.ylabel('Z (Profondeur) (m)')
     plt.xlabel('X (Largeur) (m)')
 
+def Extract_u_v(Positions_vehicule):
+    # Etrait la position des voitures donner par l'algorithme de détection et suivi de véhicule
+    u=[]
+    v=[]
+    for i in range(len(Positions_vehicule)):
+        u.append(Positions_vehicule[i][0])
+        v.append(Positions_vehicule[i][1])
+    return ([u,v])
 ## test correlation 2D
 # a=[[1,2,3],[4,5,6]]
 # b=a
@@ -412,6 +420,19 @@ def correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2):
 
 
 # plt.show()
-
+## Correpondance entre 2 points sur 2 images différentes avec la droite épipolaire
+# Prenons le cas où l'on détecte sur image 2 et que l'on fait la correspondance sur l'image 3
+# Calcul des matrices essentielles et fondamentales
+# E, F = Fonctions.Calcul_matrice_E_F(mat_Rect_1,mat_Rect_2,vect_T1,vect_T2,mat_K1,mat_K2)
+# u,v = 363,197 # Test à une position
+# A,B,C = Fonctions.Calcul_droite_epi(u,v,F) # calcul et affiche la droite épipolaire
+#
+# w = 75   # taille du masque de corrélation (2*w+1)*(2*w+1)
+# seuil = 0.2 # seuil de corrélation
+# j_max,i_max = Fonctions.cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v)
+#
+# ## Triangulation
+# Dist_cam_vehicule = Fonctions.triangulation(u,j_max,vect_T1,vect_T2)
+# print(Dist_cam_vehicule)
 ## autre
 #verification peut etre pas besion de R_rect

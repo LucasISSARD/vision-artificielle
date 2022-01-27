@@ -16,29 +16,12 @@ vect_T1,vect_T2,vect_D1,vect_D2,mat_Rect_1,mat_Rect_2,mat_K1,mat_K2,mat_R1,mat_R
 img_i_1,img_i_2 = Fonctions.Trace_Image(img_filename_1,img_filename_2) # Affiche les images et crée les figures
 
 
-## Correpondance entre 2 points sur 2 images différentes avec la droite épipolaire
-# Prenons le cas où l'on détecte sur image 2 et que l'on fait la correspondance sur l'image 3
-# Calcul des matrices essentielles et fondamentales
-# E, F = Fonctions.Calcul_matrice_E_F(mat_Rect_1,mat_Rect_2,vect_T1,vect_T2,mat_K1,mat_K2)
-# u,v = 363,197 # Test à une position
-# A,B,C = Fonctions.Calcul_droite_epi(u,v,F) # calcul et affiche la droite épipolaire
-#
-# w = 75   # taille du masque de corrélation (2*w+1)*(2*w+1)
-# seuil = 0.2 # seuil de corrélation
-# j_max,i_max = Fonctions.cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v)
-#
-# ## Triangulation
-# Dist_cam_vehicule = Fonctions.triangulation(u,j_max,vect_T1,vect_T2)
-# print(Dist_cam_vehicule)
-
 ## Correpondance entre 2 points sur 2 images différentes sans la droite épipolaire
-
-
 w=10
 seuil=0.5
 # u= [182,250,363,462,504,602,645,333,661,1014]
 # v= [224,211,196,187,183,186,183,125,186,106]
-u = [250,363,462,504,602,645,661]
-v = [211,196,187,183,186,183,186]
+Positions_vehicule = [[250,211,100,100,1],[363,196,100,100,1],[462,187,100,100,1],[504,183,100,100,1],[602,186,100,100,1],[645,183,100,100,1],[661,186,100,100,1]]
+u,v=Fonctions.Extract_u_v(Positions_vehicule)
 Fonctions.correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2) # Affiche resultat de correspondance et triangulation
 plt.show()
