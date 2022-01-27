@@ -102,8 +102,13 @@ while frame < last_frame:
 
             # Si la voiture en cours d'étude est déjà dans la liste, on l'ignore
             th1 = 30
+
+            x_cent = cars[i][0]+round(cars[i][2]/2)
+            y_cent = cars[i][1]+round(cars[i][3]/2)
+
             for k in range(len(liste)):
-                if cars[i][0] >= liste[k][0]-th1 and cars[i][0] <= liste[k][0]+th1 and cars[i][1] >= liste[k][1]-th1 and cars[i][1] <= liste[k][1]+th1:
+                if x_cent >= liste[k][0] and x_cent <= liste[k][0]+liste[k][2] and y_cent >= liste[k][1] and y_cent <= liste[k][1]+liste[k][3]:
+                #if cars[i][0] >= liste[k][0]-th1 and cars[i][0] <= liste[k][0]+th1 and cars[i][1] >= liste[k][1]-th1 and cars[i][1] <= liste[k][1]+th1:
                     ignore = True
             
             if ignore == False:
@@ -149,6 +154,7 @@ while frame < last_frame:
     cars_history = cars     # On stock les voitures actuelles dans l'historique
 
     out = topleft2center(liste) # Sortie [u, v]
+    print("OUT =", out)
 
     # Affichage de l'image
     cv2.imshow("video", img)
