@@ -43,8 +43,10 @@ Pour la mise en correspondance des points, il est possible d’utiliser la droit
 
 Maintenant que l’on a mis en correspondant les points sur les deux images, il nous reste à calculer la réelle position de la voiture. Dans notre cas nous avons les positions en pixels. On cherche la position du point :
 $$
-P=(X,Y,Z)
+
 $$
+<img src="https://latex.codecogs.com/gif.latex?P=\text(X,Y,Z)" /> 
+
 
 ## Triangulation
 
