@@ -33,6 +33,10 @@ $$
 t31=t2-R2.R1^T.t1
 $$
 
+```
+![formula](https://render.githubusercontent.com/render/math?math=t31=t2-R2.R1^T.t1)
+```
+
 Pour la mise en correspondance des points, il est possible d’utiliser la droite épipolaire qui permet de déterminer le point correspondant dans la deuxième image. Or dans ce cas nous avons à notre disposition des images déjà rectifiées. Il n’est donc pas nécessaire de calculer la droite épipolaire. Il suffit de faire une corrélation 2D selon la même ligne. Dans le cas ci-dessous, on souhaite faire la correspondance d’un point entre 2 images. Ce point appartient à la même ligne. Ainsi on peut tracer une droite qui coupe horizontalement l’image. Ensuite, on va parcourir cette droite en faisant une corrélation 2D avec l’image de référence. On pourra choisir la taille du masque qui correspond à la matrice blanche sur le dessin. En parcourant la droite avec la matrice blanche, on va garder en mémoire le maximum du résultat de la corrélation. Lorsque ce nombre est maximal soit 1, cela veut dire que les deux images sont identiques. Ainsi, en jouant sur le seuil de corrélation et le masque, on trouve le point correspondant à l’endroit ou la corrélation est maximale. On pourra donc savoir sa position exacte. Le pixel sera sur la même ligne. La colonne sera située au maximum de la corrélation.
 
 <img src="D:\Documents\GitHub\vision-artificielle-Etienne\vision-artificielle\DOC\Mise_en_correspondance.png" style="zoom:67%;" />
@@ -44,8 +48,15 @@ $$
 
 ## Triangulation
 
-La triangulation et une méthode pour calculer une position à partir de deux points dont on connait la distance.
+La triangulation et une méthode pour calculer une position à partir de deux points dont on connait la distance. Voici un schéma qui explique la technique de triangulation. Les point A et B sont des positions que l’on connaît et le point C est la position que nous cherchons à déterminer.
 
-Voici un schéma qui explique la technique de triangulation
+<img src="D:\Documents\GitHub\vision-artificielle-Etienne\vision-artificielle\DOC\La_triangulation.png" style="zoom: 50%;" />
 
- Les point A et B sont des positions que l’on connaît et le point C est la position que nous cherchons à déterminer.
+Comme nous connaissons les positions des points A et B nous pouvons calculer la distance AB. Et en mesurant les angle α et β nous pouvons calculer Ɣ le troisième angle du triangle ABC :
+$$
+Ɣ=2π - α – β
+$$
+Ainsi avec la loi des sinus :
+$$
+\frac{AB}{sin(Ɣ)}  =  \frac{BC}{sin(α)}  =  \frac{CA}{sin(β)}
+$$
