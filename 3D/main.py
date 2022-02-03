@@ -11,11 +11,11 @@ Implémente la détection de véhicule, le suivi de voiture et la Triangulation 
 - Implémente la triangulation avec affichage 2D
 
 Les fonctions sont dans le fichier Fonctions. Pour exécuter le code, lancer le main.
+Le fichier Local_config contient les chemins des images et du fichier calibration.
 """
 
 # Librairies
 import os
-from telnetlib import NOP
 import time
 import cv2
 import numpy as np

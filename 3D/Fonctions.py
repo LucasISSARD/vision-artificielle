@@ -11,8 +11,8 @@ Implémente la détection de véhicule, le suivi de voiture et la Triangulation 
 - Implémente la triangulation avec affichage 2D
 
 Les fonctions sont dans le fichier Fonctions. Pour exécuter le code, lancer le main.
+Le fichier Local_config contient les chemins des images et du fichier calibration.
 """
-
 
 import os
 import sys
@@ -35,6 +35,7 @@ liste = []      # Liste contenant les voitures détectées, format : [ x , y , w
 
 ## Fonctions
 
+# Mise en correspondance, triangulation et extraction des matrices de calibration
 def param_to_vect(param,taille):
 #Fonction de convertion pour la lecture des fichiers transformation en vecteur
     list=np.zeros(taille)
@@ -181,7 +182,6 @@ def cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v):
                 sc_max = sc
                 i_max = i
                 j_max =j
-                #print(sc)
     if sc_max > seuil:
         plt.figure(2)
         plt.plot(j_max,i_max,'go')
@@ -277,7 +277,7 @@ def Extract_u_v(Positions_vehicule):
     return ([u,v])
 
 
-## Detection de voiture
+## Detection de voiture et suivi
 def acqFrame (video_path, frame):
     # Calcul du nom du fichier désiré
     zero_pad = ""
@@ -405,7 +405,6 @@ def detection_vehicule():
     # Fermeture des fenêtres
     cv2.destroyAllWindows()
 
-# Fonctions
 def acqFrame (video_path, frame):
     # Calcul du nom du fichier désiré
     zero_pad = ""
