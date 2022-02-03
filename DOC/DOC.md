@@ -34,7 +34,7 @@ t31=t2-R2.R1^T.t1
 $$
 
 ```
-![formula](https://render.githubusercontent.com/render/math?math=t31=t2-R2.R1^T.t1)
+<img src="https://render.githubusercontent.com/render/math?math=t31=t2-R2.R1^T.t1">
 ```
 
 Pour la mise en correspondance des points, il est possible d’utiliser la droite épipolaire qui permet de déterminer le point correspondant dans la deuxième image. Or dans ce cas nous avons à notre disposition des images déjà rectifiées. Il n’est donc pas nécessaire de calculer la droite épipolaire. Il suffit de faire une corrélation 2D selon la même ligne. Dans le cas ci-dessous, on souhaite faire la correspondance d’un point entre 2 images. Ce point appartient à la même ligne. Ainsi on peut tracer une droite qui coupe horizontalement l’image. Ensuite, on va parcourir cette droite en faisant une corrélation 2D avec l’image de référence. On pourra choisir la taille du masque qui correspond à la matrice blanche sur le dessin. En parcourant la droite avec la matrice blanche, on va garder en mémoire le maximum du résultat de la corrélation. Lorsque ce nombre est maximal soit 1, cela veut dire que les deux images sont identiques. Ainsi, en jouant sur le seuil de corrélation et le masque, on trouve le point correspondant à l’endroit ou la corrélation est maximale. On pourra donc savoir sa position exacte. Le pixel sera sur la même ligne. La colonne sera située au maximum de la corrélation.
