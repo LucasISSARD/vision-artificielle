@@ -1,3 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan  6 08:25:15 2022
+
+@author: Lucas ISSARD, Etienne TORZINI, Quentin BERNARD
+
+Implémente la détection de véhicule, le suivi de voiture et la Triangulation :
+- Implémente l'algorithme de Viola & Jones pour la détection des voitures
+- Implémente l'algorithme MedianFlow pour le suivi des voitures
+- Implémente la mise en correspondance de 2 images rectifiées
+- Implémente la triangulation avec affichage 2D
+
+Les fonctions sont dans le fichier Fonctions. Pour exécuter le code, lancer le main.
+"""
+
+
 import os
 import sys
 import numpy as np
