@@ -5,11 +5,19 @@ import cv2
 from matplotlib import pyplot as plt
 from math import *
 import scipy as sc
-
+import time
 import Local_config
 
+## Paramètres
+car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Choix du classifieur pré-entraîné
+show_detected = False   # Afficher sur l'image toutes les entités détectées (rouge)
+show_tracked = True     # Afficher sur l'image les voitures en train d'être suivies (vert)
+show_rectangle = False  # Afficher sur l'image les rectangles entourant les voitures suivies (vert)
+# Variables
+trackers = []   # Liste des traceurs
+liste = []      # Liste contenant les voitures détectées, format : [ x , y , w  , h , on/off ]
 
-## Fonction
+## Fonctions
 
 def param_to_vect(param,taille):
 #Fonction de convertion pour la lecture des fichiers transformation en vecteur
@@ -44,6 +52,7 @@ def param_to_matrice(param,taille_w,taille_h):
 
 
 def calib(filename):
+    # Fonction qui permet de lire le fichier calib et extraire les données importantes
     calib_filename= Local_config.chemin+'/2011_09_26/calib_cam_to_cam.txt'
     with open(calib_filename, "r") as filin:
         for i in range(18):
@@ -104,7 +113,7 @@ def Trace_Image(img_filename_1,img_filename_2):
     return ([img_i_1,img_i_2])
 
 def Calcul_matrice_E_F(mat_R1,mat_R2,vect_T1,vect_T2,mat_K1,mat_K2):
-
+    # Calcul des matrices Essentielle et fondamentale
     R32 = mat_R2.dot(np.transpose(mat_R1))                              # Calcul de matrice de Rotations
     t32 = vect_T2 - mat_R2.dot((np.transpose(mat_R1)).dot(vect_T1))             # Calcul de matrice de translation
     t_x = np.array([[0,-t32[2],t32[1]],
@@ -126,7 +135,7 @@ def Calcul_droite_epi(u,v,F):
     return([A,B,C])
 
 def correlation_2D(I1,I2):
-
+    # Fonction qui réalise la corrélation 2D entre 2 matrices d'images
     I1_int=I1.astype(float)
     I2_int=I2.astype(float)
 
@@ -135,7 +144,6 @@ def correlation_2D(I1,I2):
 
     m2=np.mean(I2_int)
     B=np.sum((I2_int-m2)**2)
-
 
     if B == 0:
         rep = 0
@@ -166,9 +174,7 @@ def cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v):
 def cherche_pts(img_1,img_2,u,v,w,seuil):
     # sans droite epipolaire
     # Simplification caméra sur la meme ligne
-
     sc_max=seuil
-
     for i in range (w,np.size(img_2,1)-w):
         sc = correlation_2D(img_1[v-w:v+w,u-w:u+w],img_2[v-w:v+w,i-w:i+w])
 
@@ -185,14 +191,12 @@ def calc_d_cam_to_cam(T2,T3):
     d_X=T2[0]+T3[0]
     d_Y=T2[1]+T3[1]
     d_Z=T2[2]+T3[2]
-
     d_cam=sqrt(sqrt(d_X**2+d_Z**2)**2+d_Y**2)
-
     return(d_cam)
 
 
 def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
-
+    # Réalisation de la triangulation
     pi=np.pi
 
     AB=calc_d_cam_to_cam(T2,T3)
@@ -220,7 +224,6 @@ def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
 
     BC=AB*np.sin(alpha)/np.sin(gama)
 
-    # d_Y=-T3[1]
 
     d_X=-np.cos(beta)*BC-T3[0]
     d_Z=np.sin(beta)*BC-T3[2]-d_ecrant*4.65*10**(-6)
@@ -237,12 +240,6 @@ def correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2):
         dist.append(triangulation(u[i],i_max,vect_T1,vect_T2))
 
         rep.append(dist[-1][0])
-        # plt.figure(1)
-        # plt.plot (u[i],v[i],'bo')
-
-        # plt.figure(2)
-        # plt.plot (i_max,v[i],'bo')
-        # # Affichage dans un plant 2D
         plt.figure(1,figsize=(6,6), dpi=50)
         plt.plot(dist[-1][1],dist[-1][2],'bo')
     Taille=40
@@ -255,7 +252,7 @@ def correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2):
     return rep
 
 def Extract_u_v(Positions_vehicule):
-    # Etrait la position des voitures donner par l'algorithme de détection et suivi de véhicule
+    # Extrait la position des voitures donner par l'algorithme de détection et suivi de véhicule
     u=[]
     v=[]
     for i in range(len(Positions_vehicule)):
@@ -264,7 +261,7 @@ def Extract_u_v(Positions_vehicule):
     return ([u,v])
 
 
-## Detecttion de voiture
+## Detection de voiture
 def acqFrame (video_path, frame):
     # Calcul du nom du fichier désiré
     zero_pad = ""
@@ -392,180 +389,153 @@ def detection_vehicule():
     # Fermeture des fenêtres
     cv2.destroyAllWindows()
 
+# Fonctions
+def acqFrame (video_path, frame):
+    # Calcul du nom du fichier désiré
+    zero_pad = ""
+    for i in range(10 - len((str)(frame))):
+        zero_pad = zero_pad + "0"
+    img_path = video_path + zero_pad + (str)(frame) + ".png"
+    #print("Img_path : ", img_path)
+    # Acquisition de l'image
+    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+    return img
+
+def detectCars (img):
+    # Détection des voitures dans l'image
+    cars = car_cascade.detectMultiScale(img, scaleFactor = 1.04, minNeighbors = 8, minSize=(20, 20), maxSize=(180, 180))
+
+    #print("CARS (voitures détectées) =")
+    i = 0
+    for (x,y,w,h) in cars:
+        I = 0
+        for (X, Y, W, H) in cars:
+            # Si deux détections se chevauchent sur UNE MEME IMAGE (si son centre est dans la box d'une autre), on supprime la plus petite
+            if x+round(w/2) >= X and x+round(w/2) <= X+W and y+round(w/2) >= Y and y+round(w/2) <= Y+H and x != X and y != Y:
+                if cars[i][2] < cars[I][2]:
+                    cars[i] = (0,0,0,0)
+                else:
+                    cars[I] = (0,0,0,0)
+            I = I + 1
+        if cars[i][0] != 0 and cars[i][1] != 0 and show_detected == True:
+            cv2.drawMarker(img,(x+round(w/2),y+round(w/2)),color=(0,0,255), markerType=cv2.MARKER_CROSS, thickness=2)
+            cv2.putText(img, (str)(i), (x+round(w/2)+8,y+round(w/2)+8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color=(0,0,255), thickness=1)
+            cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),1)
+        #print(i, cars[i])
+        i = i + 1
+
+    return cars
+
+def topleft2center (liste):
+    carsC = []
+    for (x,y,w,h) in liste:
+        carsC.append([x + round(w/2), y + round(h/2)])
+    return carsC
+
+def trackCars (cars, cars_history,img):
+    # Détection des NOUVELLES voitures
+    for i in range(len(cars)):    # Pour toutes les "voitures" fraîchement détectées
+        ignore = False
+
+        # Si la voiture en cours d'étude est un doublon (valeurs mises à 0), on l'ignore
+        if cars[i][2] == 0:
+            ignore = True
+            break
+
+        # Si la voiture en cours d'étude est déjà dans la liste, on l'ignore
+        th1 = 30
+        x_cent = cars[i][0]+round(cars[i][2]/2)
+        y_cent = cars[i][1]+round(cars[i][3]/2)
+        for k in range(len(liste)):
+            if x_cent >= liste[k][0]-th1 and x_cent <= liste[k][0]+liste[k][2]+th1 and y_cent >= liste[k][1]-th1 and y_cent <= liste[k][1]+liste[k][3]+th1:
+                ignore = True
+
+        if ignore == False:
+            for j in range(len(cars_history)):
+                th = 20     # seuil
+                # Si c'est la deuxième fois de suite qu'on détecte cette voiture
+                if cars[i][0] >= cars_history[j][0]-th and cars[i][0] <= cars_history[j][0]+th and cars[i][1] >= cars_history[j][1]-th and cars[i][1] <= cars_history[j][1]+th:
+                    # Alors c'est bien une nouvelle voiture détectée, on l'ajoute à la liste et on lui colle un traceur
+                    ofs = int(0.3*cars[i][2])                                                   # On réduit la taille de la box de 30% pour aider la détection
+                    liste.append([cars[i][0]+ofs, cars[i][1]+ofs, cars[i][2]-2*ofs, cars[i][3]-2*ofs])           # On l'ajoute à la liste des voitures vraiment détectées
+                    box = (cars[i][0]+ofs, cars[i][1]+ofs, cars[i][2]-2*ofs, cars[i][3]-2*ofs)  # On trace sa box
+                    trackers.append(cv2.legacy.TrackerMedianFlow_create())
+                    trackers[-1].init(img, box)     # -1 = dernier tracker de la liste
+                    break
+
+    # Suivi des voitures
+    tracker_to_remove = []
+    list_to_remove = []
+    for i in range(len(trackers)):
+        success, box = trackers[i].update(img) # Met à jour les traceurs
+        if success:
+            if show_tracked == True:
+                    p1 = (int(box[0]), int(box[1]))
+                    p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
+                    x = int(p1[0] + (p2[0] - p1[0])/2)
+                    y = int(p2[1] + (p1[1] - p2[1])/2)
+                    liste[i] = [int(box[0]), int(box[1]), int(box[2]), int(box[3])]           # Mise à jour de la liste
+                    cv2.drawMarker(img,(x,y),color=(0,255,0), markerType=cv2.MARKER_CROSS, thickness=2)
+                    if show_rectangle == True:
+                        cv2.rectangle(img, p1, p2, (0, 255, 0), 2, 1)
+        else:
+            # TODO : Améliorer la gestion de la suppression, c'est pas très propre ça
+            tracker_to_remove.append(trackers[i])   # Ajoute le traceur actuel dans la liste des traceurs à supprimer
+            list_to_remove.append(liste[i])         # Ajoute l'élément de la liste concerné dans la liste des éléments de la liste à supprimer (wow)
+    # Suppression des trackers perdus
+    for j in tracker_to_remove:
+        trackers.remove(j)
+    for j in list_to_remove:
+        liste.remove(j)
+
+    return liste
 
 
+# Programme principal
+def main(first_frame,last_frame,w,seuil,vect_T1,vect_T2,video_paths,video_path):
+    # Initialisation permière image
+    frame = first_frame
+    img = acqFrame(video_path, frame)   # Acquisition de la première image
+    cars_history = detectCars(img)      # Détection des voitures
+    cv2.imshow("video", img)            # Affichage de la première image
+    frame = frame + 1
+    cv2.waitKey(1)
+    time.sleep(0.01)
 
-## test correlation 2D
-# a=[[1,2,3],[4,5,6]]
-# b=a
-#
-# m=np.mean(a)
-# n=np.mean(b)
-# A=np.sum((a-m)**2)
-# B=np.sum((b-n)**2)
-# rep = np.sum(np.sum((b-n)*(a-m)))/sqrt(A*B)
-#
-# rep_2=correlation_2D(a,b)
-#
-# print(rep)
-# print(rep_2)
+    while frame < last_frame:
 
-## test triangulation
-# T0= [2.573699e-16, -1.059758e-16, 1.614870e-16]
-# T2= [5.956621e-02, 2.900141e-04, 2.577209e-03]
-# T3= [-4.731050e-01, 5.551470e-03,-5.250882e-03]
-# AB= calc_d_cam_to_cam(T2,T3)
-#
-# angle_d_ouverture=np.pi/2
-#
-# rep=[]
-#
-# d_X=[]
-# d_Z=[]
-# taille=621
-#
-# dist_pix_im_g=363
-# dist_pix_im_d=349
-# # for dist_pix_im_d in range(taille,taille*2):
-# rep=triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3)
-# d_X.append(rep[1])
-# d_Z.append(rep[2])
-#
-# print(d_X)
-# print(d_Z)
-#
-#
-#
-# plt.figure(1)
-# plt.plot(0,0,'mo')
-# plt.plot(d_X,d_Z,'bo')
-# plt.show()
-#
-# # for dist_pix_im_g in range(taille*2,taille,-1):
-# #     for dist_pix_im_d in range(taille):
-# #         rep.append(triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3))
-# #
-# # for dist_pix_im_g in range(taille*2,taille*2-1,-1):
-# #     for dist_pix_im_d in range(taille,taille*2):
-# #         rep.append(triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3))
-# #
-# # dist_pix_im_d= np.linspace(0,taille**2+taille,taille**2+taille)
-# # plt.figure(1)
-# # plt.plot(dist_pix_im_d,rep,'r-', lw=1)
-# # plt.show()
-#
-# # dist_pix_im_g=taille*2
-# # for dist_pix_im_d in range(taille,taille*2):
-# #     rep.append(triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3))
-# #
-# # dist_pix_im_d= np.linspace(0,taille,taille)
-# # plt.figure(1)
-# # plt.plot(dist_pix_im_d,rep,'r-', lw=1)
-# # plt.show()
+        u=[]
+        v=[]
 
-## test cherche pts
+        img = acqFrame(video_path, frame)       # Acquisition de l'image
+        img_2=acqFrame(video_paths, frame)
+        cars = detectCars(img)                  # Détection des voitures
+        liste = trackCars(cars, cars_history,img)   # Suivi des voitures
+        cars_history = cars                     # Stockage des voitures actuelles dans l'historique
+        out = topleft2center(liste)             # Calcul de la sortie (liste des positions (x,y) des voitures)
 
-# w=10
-# seuil=0.5
-#
-#
-# [vect_T1,vect_T2,vect_D1,vect_D2,mat_Rect_1,mat_Rect_2,mat_K1,mat_K2,mat_R1,mat_R2 ]=calib('000020.txt')
-#
-# [img_filename_1,img_filename_2]=image ('000020_10.png')
-#
-# img_i_1,img_i_2 = Trace_Image(img_filename_1,img_filename_2)
-#
-# size=2
-#
-# u= [182,250,363,462,504,602,645,333,661,1014]#592, 524,  49, 1152, ,906
-# v= [224,211,196,187,183,186,183,125,186,106]#148, 171,  135, 99, ,106
-#
-# d_X=[]
-# d_Z=[]
-# dist=[]
-# for i in range (np.size(u)):
-#     i_max=cherche_pts(img_i_1,img_i_2,u[i],v[i],w,seuil)
-#     rep=triangulation (u[i],i_max,vect_T1,vect_T2)
-#     # dist.append(rep[0])
-#     # d_X.append(rep[1])
-#     # d_Z.append(rep[2])
-#
-#     plt.figure(1)
-#     plt.plot (u[i],v[i],'bo')
-#
-#     plt.figure(2)
-#     plt.plot (i_max,v[i],'bo')
-#
-#     plt.figure(3)
-#     plt.plot(rep[1],rep[2],'bo')
-#     # x = np.array([rep[1]-size, rep[1]+size, rep[1]+size, rep[1]-size, rep[1]-size])
-#     # y = np.array([rep[2]-size, rep[2]-size, rep[2]+size, rep[2]+size, rep[2]-size])
-#     # plt.plot(x, y,'b')
-#     # plt.xlim(-1, 2)
-#     # plt.ylim(-1, 2)
-#
-#
-# Taille=140
-#
-# plt.figure(3)
-# plt.plot(0,0,'mo')
-# plt.grid()
-# plt.axis([-Taille/2, Taille/2, -2, Taille])
-# plt.title("Positions mesurées")
-# plt.ylabel('Z (Profondeur) (m)')
-# plt.xlabel('X (Largeur) (m)')
-#
-# # X=-8.193427163744156
-# # Z=28.53998265869714
-# # size=2
-# #
-# #
-# # x = np.array([X-size, X+size, X+size, X-size, X-size])
-# # y = np.array([Z-size, Z-size, Z+size, Z+size, Z-size])
-# # plt.plot(x, y,'b')
-# # plt.xlim(-1, 2)
-# # plt.ylim(-1, 2)
-# #
-# #
-# #
-# #
-# #
-# # zero = np.zeros((np.size(u)))
-# # plt.figure(4)
-# # plt.plot(zero,dist,'bo')
-# # plt.plot(0,0,'mo')
-# #
-# #
-# #
-# #
-# # dist=[]
-# # for i in range (621):
-# #     rep=triangulation (621,i,vect_T1,vect_T2)
-# #     dist.append(rep[0])
-# #
-# # zero = np.zeros((621))
-# #
-# # plt.figure(5)
-# #
-# # plt.plot(zero,dist,'bo')
-# # plt.plot(0,0,'mo')
-# # plt.grid()
+        for e in out:
+            u.append(e[0])
+            v.append(e[1])
 
 
-# plt.show()
-## Correpondance entre 2 points sur 2 images différentes avec la droite épipolaire
-# Prenons le cas où l'on détecte sur image 2 et que l'on fait la correspondance sur l'image 3
-# Calcul des matrices essentielles et fondamentales
-# E, F = Fonctions.Calcul_matrice_E_F(mat_Rect_1,mat_Rect_2,vect_T1,vect_T2,mat_K1,mat_K2)
-# u,v = 363,197 # Test à une position
-# A,B,C = Fonctions.Calcul_droite_epi(u,v,F) # calcul et affiche la droite épipolaire
-#
-# w = 75   # taille du masque de corrélation (2*w+1)*(2*w+1)
-# seuil = 0.2 # seuil de corrélation
-# j_max,i_max = Fonctions.cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v)
-#
-# ## Triangulation
-# Dist_cam_vehicule = Fonctions.triangulation(u,j_max,vect_T1,vect_T2)
-# print(Dist_cam_vehicule)
-## autre
-#verification peut etre pas besion de R_rect
+        Dist=correspondance_sans_epipo(u,v,img,img_2,w,seuil,vect_T1,vect_T2)
+
+
+        # Affichage des résultats
+        cv2.imshow("video", img)
+        plt.pause(0.001)
+        plt.clf()
+
+        print("Dist= ",Dist)
+
+        # Inter-image
+        frame = frame + 1
+
+
+        cv2.waitKey(1)
+        time.sleep(0.05)
+    # Fermeture des fenêtres
+    cv2.destroyAllWindows()
+    plt.close()
+    #return (None)
