@@ -24,13 +24,14 @@ Démonstration en vidéo : https://youtu.be/ABVslcQg2GA
 
 ## Tutoriel
 ### 1. Vérifiez vos prérequis
-- [ ] Installer python, opencv-python, opencv-contrib-python dans les version adéquates
+- Installer python, opencv-python, opencv-contrib-python dans les version adéquates
 
 ### 2. Téléchargez le dataset
-- [ ] S'inscire sur le site de KITTI : http://www.cvlibs.net/datasets/kitti/
-- [ ] Télécharger un dataset (ex: 2011_09_26_drive_0015 en version synchronisé et rectifié)
-- [ ] Télécharger les données de calibration liées
-- [ ] Organiser l'arborescence et adapter le chemin dans main.py
-<img src="Arborescence.PNG" width=20%/>
+- S'inscire sur le site de KITTI : http://www.cvlibs.net/datasets/kitti/
+- Télécharger un dataset (ex: 2011_09_26_drive_0015 en version synchronisé et rectifié)
+- Télécharger les données de calibration liées
+- Organiser l'arborescence et adapter le chemin dans main.py
+<img src="Arborescence.PNG" width=30%/>
 
+### 3. Exécuter le main.py
 
