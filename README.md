@@ -30,22 +30,7 @@ Démonstration en vidéo : https://youtu.be/ABVslcQg2GA
 - [ ] S'inscire sur le site de KITTI : http://www.cvlibs.net/datasets/kitti/
 - [ ] Télécharger un dataset (ex: 2011_09_26_drive_0015 en version synchronisé et rectifié)
 - [ ] Télécharger les données de calibration liées
-- [ ] Organiser l'arborescence :
-vision-artificielle
-	|-> Local_config.py
-	
-	|-> Fonction.py
-	|-> main.py
-	|-> haarcascade_car.xml
-	|-> 2011_09_26
-			|-> image_02
-			|    |-> data
-			|	  	  |-> 0000000000.png
-			|         |-> 0000000001.png
-			|		  | ...
-			|-> image_03
-			|	 |-> data
-			|	  	  |-> 0000000000.png
-			|         |-> 0000000001.png
-			|		  | ...
-			|-> calib_cam_to_cam.txt
+- [ ] Organiser l'arborescence et adapter le chemin dans main.py
+<img src="Arborescence.png" alt="alt text" width=20%/>
+
+
