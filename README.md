@@ -31,6 +31,6 @@ Démonstration en vidéo : https://youtu.be/ABVslcQg2GA
 - [ ] Télécharger un dataset (ex: 2011_09_26_drive_0015 en version synchronisé et rectifié)
 - [ ] Télécharger les données de calibration liées
 - [ ] Organiser l'arborescence et adapter le chemin dans main.py
-<img src="Arborescence.png" alt="alt text" width=20%/>
+<img src="Arborescence.PNG" width=20%/>
 
 
