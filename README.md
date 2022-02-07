@@ -10,7 +10,7 @@ Démonstration en vidéo : https://youtu.be/a7-0vDmLPqY
 
 ## Etapes du projet
 ### 1. Etudes bibliographiques
-- [ ] Détecteurs de voiture et de piétons dans une image, choix de la méthode retenue pour ce projet
+- [x] Détecteurs de voiture et de piétons dans une image, choix de la méthode retenue pour ce projet
 - [ ] Suivi d'objets dans une séquence vidéo, choix de la méthode retenue pour ce projet
 
 ### 2. Application
