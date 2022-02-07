@@ -33,6 +33,7 @@ Démonstration en vidéo : https://youtu.be/ABVslcQg2GA
 - [ ] Organiser l'arborescence :
 vision-artificielle
 	|-> Local_config.py
+	
 	|-> Fonction.py
 	|-> main.py
 	|-> haarcascade_car.xml
