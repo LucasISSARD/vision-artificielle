@@ -13,31 +13,24 @@ Implémente la détection de véhicule, le suivi de voiture et la Triangulation 
 Les fonctions sont dans le fichier Fonctions. Pour exécuter le code, lancer le main.
 Le fichier Local_config contient les chemins des images et du fichier calibration.
 """
-
-import os
-import sys
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 from math import *
-import scipy as sc
-import time
 import Local_config
 
 ## Paramètres
-car_cascade = cv2.CascadeClassifier('haarcascade_car.xml')              # Choix du classifieur pré-entraîné
-show_detected = False   # Afficher sur l'image toutes les entités détectées (rouge)
-show_tracked = True     # Afficher sur l'image les voitures en train d'être suivies (vert)
+car_cascade = cv2.CascadeClassifier('haarcascade_car.xml') # Choix du classifieur pré-entraîné
+show_detected  = False  # Afficher sur l'image toutes les entités détectées (rouge)
+show_tracked   = True   # Afficher sur l'image les voitures en train d'être suivies (vert)
 show_rectangle = False  # Afficher sur l'image les rectangles entourant les voitures suivies (vert)
+
 # Variables
 trackers = []   # Liste des traceurs
 liste = []      # Liste contenant les voitures détectées, format : [ x , y , w  , h , on/off ]
 
 ## Fonctions
-
-# Mise en correspondance, triangulation et extraction des matrices de calibration
-def param_to_vect(param,taille):
-#Fonction de convertion pour la lecture des fichiers transformation en vecteur
+def param_to_vect(param,taille): # Fonction de convertion pour la lecture des fichiers transformation en vecteur
     list=np.zeros(taille)
     c=0
     for j in range(len(param)):
@@ -49,8 +42,7 @@ def param_to_vect(param,taille):
             c=c+1
     return list
 
-def param_to_matrice(param,taille_w,taille_h):
-# Fonction de convertion pour la lecture des fichiers transformation en matrice
+def param_to_matrice(param,taille_w,taille_h): # Fonction de convertion pour la lecture des fichiers transformation en matrice
     list=np.zeros((taille_w,taille_h))
     w=0
     h=0
@@ -66,11 +58,8 @@ def param_to_matrice(param,taille_w,taille_h):
             h=h+1
     return list
 
-
-
-def calib(filename):
-    # Fonction qui permet de lire le fichier calib et extraire les données importantes
-    calib_filename= Local_config.chemin+'/2011_09_26/calib_cam_to_cam.txt'
+def calib(): # Fonction qui permet de lire le fichier calib et extraire les données importantes
+    calib_filename = Local_config.path + 'calib_cam_to_cam.txt'
     with open(calib_filename, "r") as filin:
         for i in range(18):
             filin.readline()
@@ -104,14 +93,6 @@ def calib(filename):
 
     return([vect_T1,vect_T2,vect_D1,vect_D2,mat_Rect_1,mat_Rect_2,mat_K1,mat_K2,mat_R1,mat_R2])
 
-
-def image (img):
-    # Charger les photos
-    img_filename_1 = Local_config.chemin+'/data_scene_flow/testing/image_2/'+img  # Load the photo
-    img_filename_2 = Local_config.chemin+'/data_scene_flow/testing/image_3/'+img  # Load the photo
-    return([img_filename_1,img_filename_2])
-
-
 def Trace_Image(img_filename_1,img_filename_2):
     # Photo 1
     plt.figure(1)
@@ -129,8 +110,7 @@ def Trace_Image(img_filename_1,img_filename_2):
 
     return ([img_i_1,img_i_2])
 
-def Calcul_matrice_E_F(mat_R1,mat_R2,vect_T1,vect_T2,mat_K1,mat_K2):
-    # Calcul des matrices Essentielle et fondamentale
+def Calcul_matrice_E_F(mat_R1,mat_R2,vect_T1,vect_T2,mat_K1,mat_K2): # Calcul des matrices Essentielle et fondamentale
     R32 = mat_R2.dot(np.transpose(mat_R1))                              # Calcul de matrice de Rotations
     t32 = vect_T2 - mat_R2.dot((np.transpose(mat_R1)).dot(vect_T1))             # Calcul de matrice de translation
     t_x = np.array([[0,-t32[2],t32[1]],
@@ -141,7 +121,6 @@ def Calcul_matrice_E_F(mat_R1,mat_R2,vect_T1,vect_T2,mat_K1,mat_K2):
     return ([E,F])
 
 def Calcul_droite_epi(u,v,F):
-
     plt.figure(1)
     plt.plot (u,v,'mo')
     ABC = np.array([u,v,1]).dot(F)     # Droite épipolaire                                           #
@@ -151,8 +130,7 @@ def Calcul_droite_epi(u,v,F):
     plt.plot(x, -(A*x+C)/B, 'r-', lw=1)
     return([A,B,C])
 
-def correlation_2D(I1,I2):
-    # Fonction qui réalise la corrélation 2D entre 2 matrices d'images
+def correlation_2D(I1,I2): # Fonction qui réalise la corrélation 2D entre 2 matrices d'images
     I1_int=I1.astype(float)
     I2_int=I2.astype(float)
 
@@ -169,9 +147,7 @@ def correlation_2D(I1,I2):
 
     return (rep)
 
-
-def cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v):
-    # Recherche du point correspondant sur l'image droite
+def cherche_point_droite_epi(w,seuil,A,B,C,img_i_1,img_i_2,u,v): # Recherche du point correspondant sur l'image droite
     sc_max=seuil
     for j in range(w,np.size(img_i_2,1)-w):
         i = round(-(A*j+C)/B)    # round = arrondie
@@ -210,9 +186,7 @@ def calc_d_cam_to_cam(T2,T3):
     d_cam=sqrt(sqrt(d_X**2+d_Z**2)**2+d_Y**2)
     return(d_cam)
 
-
-def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3):
-    # Réalisation de la triangulation
+def triangulation (dist_pix_im_g,dist_pix_im_d,T2,T3): # Réalisation de la triangulation
     pi=np.pi
 
     AB=calc_d_cam_to_cam(T2,T3)
@@ -267,8 +241,7 @@ def correspondance_sans_epipo(u,v,img_i_1,img_i_2,w,seuil,vect_T1,vect_T2):
     plt.xlabel('X (Largeur) (m)')
     return rep
 
-def Extract_u_v(Positions_vehicule):
-    # Extrait la position des voitures donner par l'algorithme de détection et suivi de véhicule
+def Extract_u_v(Positions_vehicule): # Extrait la position des voitures donner par l'algorithme de détection et suivi de véhicule
     u=[]
     v=[]
     for i in range(len(Positions_vehicule)):
@@ -276,136 +249,7 @@ def Extract_u_v(Positions_vehicule):
         v.append(Positions_vehicule[i][1])
     return ([u,v])
 
-
-## Detection de voiture et suivi
-def acqFrame (video_path, frame):
-    # Calcul du nom du fichier désiré
-    zero_pad = ""
-    for i in range(10 - len((str)(frame))):
-        zero_pad = zero_pad + "0"
-    img_path = video_path + zero_pad + (str)(frame) + ".png"
-    print("Img_path : ", img_path)
-    # Acquisition de l'image
-    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-    return img
-
-def detectCars (img):
-    # Détection des voitures dans l'image
-    cars = car_cascade.detectMultiScale(img, scaleFactor = 1.04, minNeighbors = 8, minSize=(20, 20), maxSize=(180, 180))
-
-    print("Voitures détectées sur cette image :")
-    i = 0
-    for (x,y,w,h) in cars:
-        I = 0
-        for (X, Y, W, H) in cars:
-            # Si deux détections se chevauchent sur UNE MEME IMAGE (si son centre est dans la box d'une autre), on supprime la plus petite
-            if x+round(w/2) >= X and x+round(w/2) <= X+W and y+round(w/2) >= Y and y+round(w/2) <= Y+H and x != X and y != Y:
-                if cars[i][2] < cars[I][2]:
-                    cars[i] = (0,0,0,0)
-                else:
-                    cars[I] = (0,0,0,0)
-            I = I + 1
-        if cars[i][0] != 0 and cars[i][1] != 0 and show_detected == True:
-            cv2.drawMarker(img,(x+round(w/2),y+round(w/2)),color=(0,0,255), markerType=cv2.MARKER_CROSS, thickness=2)
-            cv2.putText(img, (str)(i), (x+round(w/2)+8,y+round(w/2)+8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color=(0,0,255), thickness=1)
-            cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),1)
-        print(i, cars[i])
-        i = i + 1
-
-    return cars
-
-
-def detection_vehicule():
-    # Variables
-    first = True
-    trackers = []   # Liste des traceurs
-    liste = []      # Liste contenant les voitures détectées, format : [ x , y , w  , h , on/off ]
-
-    # Programme principal
-    frame = first_frame
-    while frame < last_frame:
-        # Acquisition de l'image
-        img = acqFrame(video_path, frame)
-
-        # Détection des voitures
-        cars = detectCars(img)
-
-        # Suivi des voitures
-        if first == True:
-            first = False
-        else :
-
-            # Détection des NOUVELLES voitures
-            for i in range(len(cars)):    # Pour toutes les "voitures" fraîchement détectées
-                ignore = False
-
-                # Si la voiture en cours d'étude est un doublon (valeurs mises à 0), on l'ignore
-                if cars[i][2] == 0:
-                    ignore = True
-                    break
-
-                # Si la voiture en cours d'étude est déjà dans la liste, on l'ignore
-                th1 = 30
-                for k in range(len(liste)):
-                    if cars[i][0] >= liste[k][0]-th1 and cars[i][0] <= liste[k][0]+th1 and cars[i][1] >= liste[k][1]-th1 and cars[i][1] <= liste[k][1]+th1:
-                        ignore = True
-
-                if ignore == False:
-                    for j in range(len(cars_history)-1): # /!\ Faut pas le -1 normalement mais ça marche mieux avec donc bon...
-                        # Si c'est la deuxième fois de suite qu'on détecte cette voiture
-                        th = 20     # seuil
-                        if cars[i][0] >= cars_history[j][0]-th and cars[i][0] <= cars_history[j][0]+th and cars[i][1] >= cars_history[j][1]-th and cars[i][1] <= cars_history[j][1]+th:
-                            # Alors c'est bien une nouvelle voiture détectée, on l'ajoute à la liste et on lui colle un traceur
-                            liste.append([cars[i][0], cars[i][1], cars[i][2], cars[i][3], 1])           # On l'ajoute à la liste des voitures vraiment détectées
-                            ofs = int(0.2*cars[i][2])                                                   # On réduit la taille de la box de 20% pour aider la détection
-                            box = (cars[i][0]+ofs, cars[i][1]+ofs, cars[i][2]-2*ofs, cars[i][3]-2*ofs)  # On trace sa box
-                            trackers.append(cv2.legacy.TrackerMedianFlow_create())
-                            trackers[-1].init(img, box)     # -1 = dernier tracker de la liste
-                            break
-
-            print("TRACKERS = ", trackers)
-            print("LISTE = ", liste)
-
-            tracker_to_remove = []
-            list_to_remove = []
-            for i in range(len(trackers)):
-                success, box = trackers[i].update(img) # Met à jour les traceurs
-                if success:
-                    if show_tracked == True:
-                            p1 = (int(box[0]), int(box[1]))
-                            p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
-                            x = int(p1[0] + (p2[0] - p1[0])/2)
-                            y = int(p2[1] + (p1[1] - p2[1])/2)
-                            cv2.drawMarker(img,(x,y),color=(255,0,0), markerType=cv2.MARKER_CROSS, thickness=2)
-                            cv2.rectangle(img, p1, p2, (255, 0, 0), 2, 1)
-                else:
-                    # TODO : Améliorer la gestion de la perte d'objets pour éviter de vider complètement la liste à chaque fois qu'on perd qu'un seul traceur
-                    print("Echec du suivi tacker n°", i)
-                    tracker_to_remove.append(trackers[i])   # Ajoute le traceur actuel dans la liste des traceurs à supprimer
-                    list_to_remove.append(liste[i])         # Ajoute l'élément de la liste concerné dans la liste des éléments de la liste à supprimer (wow)
-
-            # Et on supprime !
-            for j in tracker_to_remove:
-                trackers.remove(j)
-            for j in list_to_remove:
-                liste.remove(j)
-
-
-
-        cars_history = cars     # On stock les voitures actuelles dans l'historique
-
-        # Affichage de l'image
-        cv2.imshow("video", img)
-
-        frame = frame + 1
-        cv2.waitKey(1)
-        time.sleep(0.1)
-        print("-------------")
-
-    # Fermeture des fenêtres
-    cv2.destroyAllWindows()
-
-def acqFrame (video_path, frame):
+def acqFrame (video_path, frame): # Importe l'image à la frame voulue
     # Calcul du nom du fichier désiré
     zero_pad = ""
     for i in range(10 - len((str)(frame))):
@@ -416,11 +260,9 @@ def acqFrame (video_path, frame):
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     return img
 
-def detectCars (img):
-    # Détection des voitures dans l'image
+def detectCars (img): # Réalise la détection des voitures dans une image en utilisant l'algorithme de Viola & Jones
     cars = car_cascade.detectMultiScale(img, scaleFactor = 1.04, minNeighbors = 8, minSize=(20, 20), maxSize=(180, 180))
 
-    #print("CARS (voitures détectées) =")
     i = 0
     for (x,y,w,h) in cars:
         I = 0
@@ -436,7 +278,6 @@ def detectCars (img):
             cv2.drawMarker(img,(x+round(w/2),y+round(w/2)),color=(0,0,255), markerType=cv2.MARKER_CROSS, thickness=2)
             cv2.putText(img, (str)(i), (x+round(w/2)+8,y+round(w/2)+8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color=(0,0,255), thickness=1)
             cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),1)
-        #print(i, cars[i])
         i = i + 1
 
     return cars
@@ -447,7 +288,7 @@ def topleft2center (liste):
         carsC.append([x + round(w/2), y + round(h/2)])
     return carsC
 
-def trackCars (cars, cars_history,img):
+def trackCars (cars, cars_history,img): # Réalise le suivi des voitures en utilisant l'algorithme MedianFlow
     # Détection des NOUVELLES voitures
     for i in range(len(cars)):    # Pour toutes les "voitures" fraîchement détectées
         ignore = False
@@ -504,53 +345,3 @@ def trackCars (cars, cars_history,img):
         liste.remove(j)
 
     return liste
-
-
-# Programme principal
-def main(first_frame,last_frame,w,seuil,vect_T1,vect_T2,video_paths,video_path):
-    # Initialisation permière image
-    frame = first_frame
-    img = acqFrame(video_path, frame)   # Acquisition de la première image
-    cars_history = detectCars(img)      # Détection des voitures
-    cv2.imshow("video", img)            # Affichage de la première image
-    frame = frame + 1
-    cv2.waitKey(1)
-    time.sleep(0.01)
-
-    while frame < last_frame:
-
-        u=[]
-        v=[]
-
-        img = acqFrame(video_path, frame)       # Acquisition de l'image
-        img_2=acqFrame(video_paths, frame)
-        cars = detectCars(img)                  # Détection des voitures
-        liste = trackCars(cars, cars_history,img)   # Suivi des voitures
-        cars_history = cars                     # Stockage des voitures actuelles dans l'historique
-        out = topleft2center(liste)             # Calcul de la sortie (liste des positions (x,y) des voitures)
-
-        for e in out:
-            u.append(e[0])
-            v.append(e[1])
-
-
-        Dist=correspondance_sans_epipo(u,v,img,img_2,w,seuil,vect_T1,vect_T2)
-
-
-        # Affichage des résultats
-        cv2.imshow("video", img)
-        plt.pause(0.001)
-        plt.clf()
-
-        print("Dist= ",Dist)
-
-        # Inter-image
-        frame = frame + 1
-
-
-        cv2.waitKey(1)
-        time.sleep(0.05)
-    # Fermeture des fenêtres
-    cv2.destroyAllWindows()
-    plt.close()
-    #return (None)

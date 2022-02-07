@@ -14,17 +14,5 @@ Les fonctions sont dans le fichier Fonctions. Pour exécuter le code, lancer le 
 Le fichier Local_config contient les chemins des images et du fichier calibration.
 """
 
-import os
-import sys
-import numpy as np
-import cv2
-from matplotlib import pyplot as plt
-
-
 ## Local config
-
-chemin='C:/Users/quent/Desktop/Cours 5A/VISION_PROJET'
-#video_path = "C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/road/"    # Chemin de la vidéo ( /!\ sur Windows, remplacer les \ par des / sans oublier le / final )
-
-video_path_02 = "C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/2011_09_26/image_02/data/"
-video_path_03 = "C:/Users/quent/Desktop/Cours 5A/VISION_PROJET/2011_09_26/image_03/data/"
+path = 'H:/GitHub/vision-artificielle/2011_09_26/'      # /!\ TODO : Adaptez le chemin du dataset ici
