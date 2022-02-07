@@ -30,7 +30,7 @@ Démonstration en vidéo : https://youtu.be/ABVslcQg2GA
 - S'inscire sur le site de KITTI : http://www.cvlibs.net/datasets/kitti/
 - Télécharger un dataset (ex: 2011_09_26_drive_0015 en version synchronisé et rectifié)
 - Télécharger les données de calibration liées
-- Organiser l'arborescence et adapter le chemin dans main.py
+- Organiser l'arborescence et adapter le chemin dans Local_config.py
 <img src="Doc/Arborescence.PNG" width=30%/>
 
 ### 3. Exécuter le main.py
