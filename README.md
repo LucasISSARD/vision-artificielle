@@ -1,7 +1,7 @@
 # vision-artificielle
 L'objectif de ce projet est de réaliser une application en Python permettant la détection et la localisation dans l'espace de véhicules à partir des images d'une scène vue par une caméra stéréoscopique. La base de donnée utilisée est celle de KITTI.
 
-Démonstration en vidéo : https://youtu.be/ABVslcQg2GA
+Démonstration en vidéo : https://youtu.be/a7-0vDmLPqY
 
 ## Prérequis
 - python 				3.8.10
